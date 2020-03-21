@@ -1,73 +1,175 @@
+# Clear environment
+rm(list = ls())
+# Clear console
+cat("\014")
+
 library(tidyr)
 library(dplyr)
-library(shiny)
 library(data.table)
-library(tidyverse)
 library(lubridate)
-library(forcats)
+library(ggplot2)
+library(plotly)
+library(openxlsx)
+
 ### If having trouble installing packages:
 # execute this in console: trace(utils:::unpackPkgZip, edit=TRUE)
 # find Sys.sleep(0.5) --> change to Sys.sleep(2.5)
 
-# set working directory
-setwd("C:/Users/592798/Documents/Monthly Spending Reports/R_Banking")
+################################################ UPDATES
 
-# read in the data
-spending <- fread("Bank_Statement_10_01_to_2_28.csv", data.table=FALSE)
+# set working directory
+setwd("C:/Users/TAMcNeil/Documents/Spending/Data")
+
+
+# create a list of the names of all files in the working directory, call the list "files"
+files <- paste(substr(list.files(), 1, nchar(list.files())))
+
+# read in all the files in the working directory, name them according to their filenames
+for(i in 1:length(files)){
+  assign(files[i],fread(files[i], check.names = TRUE))
+}
+
+# Combine checking account files
+checking = data.frame()
+
+for(i in ls(pattern = 'Acct_5789*')){
+  temp <- get(i) %>% select(Date, Description, Amount)
+  checking <- rbind(checking, temp)
+}
+
+checking$Payment_Method <- 'Debit'
+
+# change amount to numeric
+checking$Amount <- gsub("\\(", "-",checking$Amount)
+checking$Amount <- gsub("\\)", "",checking$Amount)
+checking$Amount <- gsub("\\$", "",checking$Amount)
+checking$Amount <- gsub(",", "",checking$Amount)
+checking$Amount <- as.numeric(checking$Amount)
+
+
+# combine credit card account files
+credit = data.frame()
+
+for(i in ls(pattern = 'Acct_7493*')){
+  temp <- get(i) %>% select(Date, Description, Amount)
+  credit <- rbind(credit, temp)
+}
+
+rm(temp)
+
+# add negative signs to positive transactions
+credit$Amount <- ifelse(grepl("\\(",credit$Amount),
+                        credit$Amount,
+                        paste0("-",credit$Amount))
+
+credit$Payment_Method <- 'Credit'
+
+# change amount to numeric
+credit$Amount <- gsub("\\(", "",credit$Amount)
+credit$Amount <- gsub("\\)", "",credit$Amount)
+credit$Amount <- gsub("\\$", "",credit$Amount)
+credit$Amount <- gsub(",", "",credit$Amount)
+credit$Amount <- as.numeric(credit$Amount)
+
+# Combine credit and checking transactions
+spending <- rbind(credit, checking)
+
+# Remove items from environment
+rm(list=ls(pattern = 'Acct*'))
+rm(credit)
+rm(checking)
+
+#### Earliest date to be included
+Earliest <- "2019-06-01"
+
+##################################################################################################################
+
 
 purchases = list(
+  credit_payments = c("M-APP TRANSFER US","PAYMENT TO CREDIT CARD","CR CD PMT"),
   gym = c('GOLDS GYM'),
-  store = c('CVS/PHARMACY', 'RITE AID STORE', "UPPY'S", 'WAWA','CHEVRON/QUICKWAY MART','HUDSON NEWS','TOM THUMB STORE','TOMMYS 27',
+  stores_groceries = c('CVS/PHARMACY', 'RITE AID STORE', "UPPY'S", 'WAWA','CHEVRON/QUICKWAY MART','HUDSON NEWS','TOM THUMB STORE','TOMMYS 27',
             'TROLLEY MARKET','QT 885 0800', 'SHELL SERVICE STATION','BP#9708157CARY ST','Z MARKET','UNIVERSAL WINE & L', 'HUDSON',
-            'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR'),
-  household_items = c("LOWE'S",'BEDBATH&BEYOND'),
-  shipping_online_purchase = c('AMZN DIGITAL','USPS.COM','Amazon.com*MB7H24C'),
-  bar = c('CRYSTAL CITY SPORT', 'EL REY', 'FOX BROS BAR','LUCKY BAR',"ORMSBY'S",'SINE IRISH PUB','SOUTHERN RAILWAY T','ROCK AND ROLL',
+            'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR','WALGREENS','SHEETZ','REAMS MARKET',
+            "AKJK CROWN",'BI-LO GROCERY','SPEEDWAY',"SPEEDY'S MART",'SUNNYS MARKET','CHEVRON FOOD MART','PUBLIX SUPER MAR',
+            'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL'
+            ),
+  household_items = c("LOWE'S",'BEDBATH&BEYOND','IKEA','NNT COST PLUS', 'GOODWILL','BED BATH & BEYOND','STAPLES'
+                      ),
+  bars = c('CRYSTAL CITY SPORT', 'EL REY', 'FOX BROS BAR','LUCKY BAR',"ORMSBY'S",'SINE IRISH PUB','SOUTHERN RAILWAY T','ROCK AND ROLL',
           'THE QUEEN VIC','THE FAINTING GOAT','ZEN BISTRO','BAJA BEAN','BARCODE','BASEMENT BAR','DON`T LOOK BACK','Flash','FLORA',
           'HUDSON ST1468','LUCKY STRIKE WASHI','Mission','PEARL RAW BAR','POSTBELLUM','SARAHS PLACE','Sticky Rice','WHISKEY BUSINESS',
           'YEOLDEBULLANDBUSH','LOCAL 16','Wet Dog Tavern','THE BRIGHTON','DC SANTA CRAWL','PIK NIK','Mockingbird Hill','CITY TAP HOUSE',
           'ABIGAIL','CAFE CITRON','JEFFERSON TJS REST','F.W. SULLIVANS','WHITLOWS','CITY TAP','MARRIOTT RICHMOND','THUNDER GRILL',
-          'THE BROADBERRY','ALL SOULS','El Centro'),
-  restaurant = c("BEAUVINE BURGER", "DESPERADOS BURGER", "BASIC BURGER", "BURGER KING", "BURGER BACH",'SAVI PHARR', 'STARBUCKS', 'AUNTIE ANNES', 'BREZZA CUCINA','BUCKHEAD IRISH PUB','CHIPOTLE','KOGIYA RESTAURANT',
-                 "MCDONALD'S",'PANDA EXPRESS', "PAPA JOHN'S", 'POTBELLY','RICHMOND AIRPORT','DC DONER','DC FOOD TRUCK',
+          'THE BROADBERRY','ALL SOULS','El Centro','BAR DECO','Rocket Bar','BAR LOUIE','FLASH','TIKI TNT','PUNCH BOWL',
+          "OSULLIVANS IRISH P", "COURTYARD RICHMOND", "WILSON HARDWARE", "DC 9", "AMERICAN ICE COMPA", "CRAFTHOUSE",'OLD SMOKEY BAR',
+          'NIGHTCLUB','TILLYS TIKI BAR','THE BEER LOT', 'EIGHTEENTH STREET','CAPITOL LOUNG','THE ANTHEM','GOAT','SOCIAL', 'QUINNS',
+          ' SAUF HAUS','MOES','BULLPEN','SAUF HAUS','KITH AND KIN','H STREET COUNTRY C','Bluejacket/The Yar', 'REBELLION ON',
+          "THE LIBERTY T", "U STREET MUSIC HAL","STICKY RICE","POOR BOYS","Roofers Union",'801 Restaurant and Bar','CARY STREET CAFE'
+          ),
+  eating_out = c("BEAUVINE BURGER", "DESPERADOS BURGER", "BASIC BURGER", "BURGER KING", "BURGER BACH",'SAVI PHARR', 'STARBUCKS',
+                 'AUNTIE ANNES', 'BREZZA CUCINA','BUCKHEAD IRISH PUB','CHIPOTLE','KOGIYA RESTAURANT',
+                 "MCDONALD'S", "PAPA JOHN'S", 'RICHMOND AIRPORT','DC DONER',
                  'NASSTA CORP','PARS KABOB',"TGI FRIDAY'S",'AN UNCOMMON CAFE','BESTOLLI PIZZA','BONEFISH GRILL','Dominos',
                  'CARLYLE','CHICK-FIL-A','JAMBA JUICE','JOHNNY PISTOLAS', 'DOSI ROCK','MARY ANGELAS PIZZE','MUKUNDRAI INC',
                  'NY DELI','PANERA BREAD','POPEYES',"ALEXA'S FRIED","ALEXA'S FRIED",'IRON GRILL','SWEETBAKE',
-                 'TASTY KABOB','DCTAPASTRU','SUGAR & TWINE','LOCAL EATERY','WOODSHED SMOKE',"WENDY'S",'JIMMY JOHNS','KIMBERLY SAVIL',
+                 'DCTAPASTRU','SUGAR & TWINE','LOCAL EATERY','WOODSHED SMOKE',"WENDY'S",'JIMMY JOHNS','KIMBERLY SAVIL',
                  'SHAKE SHACK','SIDEWALK CAFE','CHANELLOS PIZZA','LAMPLIGHTER','SUBWAY','JEFFERSON LEMAIRE','WENDYS','LEVELUP*CAVA',
                  'CAFE TWELVE','SMALLCAKES CUPCAKE','UPPER SHIRLEY VINE',"KELLY'S CAJUN",'SAISON','TACO BELL','TEMPLE','KFC',
-                 'CRACKER BARREL','SMOOTHIE KING','TNR CAFE','TARRANTS','TOPPERS PIZZA','CITY DOGS','CAVA'),
-  books = c('BARNESNOBLE','HBOOKSELLER'),
-  clothes_shoes = c('GAP US','TARGET','NORDSTROM','MACYS','T.J. MAXX'),
-  donations = c('HUMAN RIGHTS'),
-  electronics_Movies = c('BEST BUY','WAL-MART','NINTENDO','GOOGLE'),
-  insurance = c('STATE FARM INSURAN'),
-  fun_activities = c('AGECROFT HALL','DEGGELLER ATTRACTI','STATE FAI','MOVIELAND',
-                     'REGAL POTOMAC YARD','RUSSELL FOODS','STONE MOUNTAIN','MOONRISE FESTI',
-                     'STOCKYARD SPORTS','WM SUPERCENTER','DC BRUNCH','REGAL CINEMAS','POE FOUNDATION',
-                     'WINTERGREEN','DAYS INN'),
-  gifts_holidays = c('PREPAID','MOOSE APPLE CHRIST','Amzn.com/bill',
-                     'ACACIA MID-TOWN','GAMESTOP #4101 1100 S HAY 12-23-18','VZW WEBPAY VZ WIRELESS'),
-  groceries = c('HARRIS TEETER', 'KROGER'),
-  haircut = c('GREAT CLIPS'),
-  laundry = c('COINMACH RIVER'),
-  media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime'),
-  parking = c('PARKMOBILE','RIVER HOUSE VALET'),
-  phone_plan = c('VERIZON WIRELESS'),
+                 'CRACKER BARREL','SMOOTHIE KING','TNR CAFE','TARRANTS','TOPPERS PIZZA','CITY DOGS','CAVA','COOK OUT','CHICKFILA',
+                 'VCUMEDICALAUBONPAI',"IRONCLAD COFFE", "PEETS", "KOBE JAPANESE STEA","RICHARDS RESTAURAN", "OLD EBBITT GRILL", 
+                 "THE SIMILANS THAI", "ARBYS", "MCDONALDS","FETG2", 'HOME TEAM GRILL','CAFE GEORGETOWN','MARTINS TAVERN',
+                 "SWIZZLER FOOD", '2WSHGTN NTNLS','BREAD & WATER', 'CREATIVE FOOD', 'OLD CHICAGO COLUMB', 'RED LOBSTER','BBQ',
+                 'BAR TACO','J CHRISTOPHERS BUC', 'CHICK FIL A', 'SBARRO', "NATE'S BAGELS", 'OEGADGIB','NAMASTE EVERE','NEW YORK DELI',
+                 'EN SU BOCA','BONEFISH', 'RESTAURANT', 'RHODESIDE GRILL', "IRELAND'S FOUR COU", 'COMPASS COFFEE','BOB & EDITHS DINER',
+                 'KUBA KUBA', 'THE ANNEX', 'NANDO S PERI-PERI','LEMON CUISINE','HERITAGE','URBAN THAI RESTAUR','ANOTHER BROKEN EGG',
+                 'WHITEHALL TAV','IBERIAN PIG','AMORINO ATLANT','LITTLE MEXICO', 'EPIC SMOKEHOUSE', "KIRWAN'S ON THE WH",
+                 'DOLCEZZA GELATO', 'NEW YORK STYLE','SUSHI HIBACHI BIST','BANGKOK 54 RESTAUR', 'FUEL PUMP', 'WAFFLE HOUSE','A DELI',
+                 'PIZZA & BEERS', '&PIZZA',"JACK BROWNS","THE TOBACCO COMPAN","THE FRANKLIN INN","DOMINO'S","BOULEVARD BURGER",
+                 "SMOOTHIE","ROAEATSTR",'FIRE & HOPS','IHOP','OYAMEL',"ROSTOV'S COFFEE & TEA",'KPHTH LLC','FOODA INC'),
+  lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
+  clothes_shoes = c('GAP US','TARGET','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
+                    'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW"
+                    ),
+  electronics_movies_books = c('BEST BUY','WAL-MART','NINTENDO','GOOGLE','BARNESNOBLE','HBOOKSELLER','M JUDSON BOOKSELLE',"INSTYLE FIX"
+                               ),
+  insurance = c('STATE FARM INSURAN','STATE FARM INSURA'),
+  fun_activities = c('AGECROFT HALL','DEGGELLER ATTRACTI','STATE FAI','MOVIELAND','REGAL POTOMAC YARD','RUSSELL FOODS',
+                     'STONE MOUNTAIN','MOONRISE FESTI','STOCKYARD SPORTS','WM SUPERcenter','DC BRUNCH','REGAL CINEMAS',
+                     'POE FOUNDATION','WINTERGREEN','DAYS INN','RESIDENT ADVISOR T',"PARTY CITY",'TICKETFLY','TRIGGER AGENCY',
+                     'STUBHUB','FCPA OAK MAR GC','INTL SPY MUSEUM','TICKETMASTER','BALLSTON COMMON ST','CARMACK',"VIRGINIA MUSEUM BEST", 
+                     "ARTECHOUSE","LINCOLN THEATRE",'ALOHA SAFARI ZOO'),
+  gifts_holidays = c('PREPAID','MOOSE APPLE CHRIST','Amzn.com/bill','ACACIA MID-TOWN','GAMESTOP #4101 1100 S HAY 12-23-18',
+                     'VZW WEBPAY VZ WIRELESS','BRANDYLANE PUB',"L2ATOM51",'RICHARD VARIETY ST','GUAVA FAMILY INC',
+                     'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S'
+                     ),
+#  groceries = c('HARRIS TEETER', 'KROGER','FOOD LION'),
+  media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime','APPLE.COM/BILL'),
+  phone = c('PAYMENTS VERIZON WIRELESS','VERIZON WRLS'),
+  internet = c('VERIZON .COM','VERI ZON FL'),
   rent_utilities = c('PROPERTY PAYMENT'),
-  salary_reimbursement = c('DIRECT DEP BOOZ ALLEN HAMIL','MOBILE DEPOSIT'),
-  snack = c('CMSVEND','EAST POTOMAC GOLF','PENTAGON CENTER TR','BLCKT VE'),
+  salary_and_reimbursement = c('DIRECT DEP BOOZ ALLEN HAMIL','MOBILE DEPOSIT',"FUNDS XFER BRENTALIE", "VASTTAXRFD VA DEPT TAXATION", 
+                           "SBTPG LLC TAX PRODUCTS",'TAX REF IRS'),
   student_loans = c('STUDNTLOAN'),
   transfer_from_savings = c('FROM SAVINGS'),
   transfer_to_savings = c('TO SAVINGS'),
-  transit = c('ERM','METRO'),
-  transportation = c('AMTRAK','GREYHOUND','MEGABUS'),
-  travel = c('SPIRIT AIRL','DELTA AIR','MARC GARAGE & BWI','PEN AND PROSE - BWI'),
-  ridesharing = c('UBER','LYFT'),
+  metro = c('ERM','METRO'),
+  trains_buses = c('AMTRAK','GREYHOUND','MEGABUS'),
+  travel = c('SPIRIT AIRL','DELTA AIR','MARC GARAGE & BWI','PEN AND PROSE - BWI','UNITED','EXPEDIA','QUALITY SUITES',
+             'DULLES WASHINGTON','HAMPTON INN','FOREIGN TRANSACTION FEE','CONDOR'),
+  rideshares = c('UBER','LYFT','BIRD APP'),
   venmo_paid = c('CASHOUT VENMO'),
-  venmo_payment = c('PAYMENT VENMO'),
-  withdrawal = c('ATM')
+  venmo_payment = c('PAYMENT VENMO','RETRY PYMT VENMO'),
+  miscellaneous = c('ATM',"LEONARD'S STUD","PAULINEOGEM VISA MONEY TRANSFER",
+                    'CMSVEND','EAST POTOMAC GOLF','PENTAGON center TR','BLCKT VE','USCONNECT ACCNT VE','USPS.COM','HUMAN RIGHTS',
+                    'GREAT CLIPS', 'COINMACH RIVER','PARKMOBILE','RIVER HOUSE VALET','VALET PARKIN',"RETURNED ITEM FEE",
+                    'PENSKE TRK', 'PAY PAL *PAULINEOGEM', 'FANTASTIC THRIF','TEN THOUSAND', 'VNO PENTAGON PLAZA','COINMACH',
+                    "L'ENFANT WEST","MYEYEDR","ARAMARK REFRESHMENTS","FMB LAUNDRY","INTUIT"
+                    ),
+  online_purchases = c('AMZN DIGITAL','Amazon.com*MB7H24C','AMZN Mktp','JIBJAB ECARDS',"AMAZON.COM","AMZN MKTP")
 )
+
+# Miscellaneous: Laundry, Haircut, Parking, Books, Withdrawal, Snack, Shipping Online Purchase, Donations, Scam
 
 ### create new column Purchase
 spending$Purchase = ""
@@ -82,6 +184,11 @@ for(key in purchases){
 # inspect null dataframe and include new keywords
 spending_null <- spending %>% filter(spending$Purchase == "")
 
+# If there are any null purchases, stop running and categorize the new purchases
+if(nrow(spending_null) > 0)
+  stop('New purchases need to be categorized')
+
+rm(spending_null)
 
 ### create new column Category
 spending$Category = ""
@@ -94,17 +201,22 @@ for(i in 1:NROW(purchases)){
   }
 }
 
+rm(purchases)
+
+### Filter out credit payments
+spending <- spending%>%
+  filter(Category!="credit_payments")
+
 ### create new column Type
 types = list(
-  day_to_day = c('restaurant','store','ridesharing','bar','groceries',
-                 'transit','extra','transportation','laundry','snack',
-                 'withdrawal','haircut','books','shipping_online_purchase',
-                 'parking'),
-  monthly_bills = c('media','phone_plan','insurance',
-                    'student_loans','rent_utilities','gym'),
-  ad_hoc_purchases = c('clothes_shoes','travel','electronics_Movies',
-                       'gifts_holidays','household_items','donations'),
-  income = c('salary_reimbursement'),
+  day_to_day = c('eating_out','stores_groceries','rideshares','bars', 'lunch', #groceries',
+                 'metro','extra','trains_buses','laundry','snack','withdrawal','haircut','books','shipping_online_purchase',
+                 'parking','fun_activities','miscellaneous'),
+  monthly_bills = c('media','phone','insurance',
+                    'student_loans','rent_utilities','gym','internet'),
+  ad_hoc_purchases = c('clothes_shoes','travel','electronics_movies_books',
+                       'gifts_holidays','household_items','donations','online_purchases'),
+  income = c('salary_and_reimbursement'),
   savings_transfers = c('transfer_from_savings','transfer_to_savings'),
   venmo = c('venmo_payment','venmo_paid')
 )
@@ -119,27 +231,38 @@ for(i in 1:NROW(types)){
   }
 }
 
+rm(types)
+
 ### Create new column City
 city = list(
-  c("WASHINGTON DC", "Arlington VA", "RICHMOND VA", "ARLINGTON VA", "WINTERGREEN VA", "WAYNESBORO VA",  "HALETHORPE MD", 
-    "ALEXANDRIA VA", "Washington DC", "RUTHER GLEN VA", "FOREST HEIGHT MD", "Baltimore MD", "Richmond VA", "FALLS CHURCH VA",
-    "San Francisco CA", "EAST RUTHERFO NJ", "GLEN ALLEN VA", "BOWIE MD", "HERNDON VA", "Alexandria VA", "Fairfax VA",
-    "ANNANDALE VA", "ATLANTA GA", "WARRENTON VA", "BALTIMORE MD", "IRVING TX", "FT WORTH TX", "BENBROOK TX", "FT. WORTH TX",
-    "DFW AIRPORT TX", "LINTHICUM HEI MD", "NEWARK DE", "GREENVILLE DE", "BERRYVILLE VA", "CHANTILLY VA", "CHARLES CITY VA")
+  c("ALEXANDRIA",   "ANNANDALE",    "ARLINGTON",    "ATLANTA",    "BALTIMORE",    "BENBROOK",    "BERRYVILLE",    "BOWIE",    "CENTREVI LLE",
+    "CHANTILLY",    "CHARLESCITY",    "DFWAIRPORT",    "EASTRUTHERFO",    "FAIRFAX",  "FALLSCHURCH",    "FAYETTEVILLE",    "FORESTHEIGHT",
+    "EMPORIA", "FT.WORTH",    "FTWORTH",    "GLENALLEN",    "GREENVILLE",    "HALETHORPE",   "HENRICO",  "HERNDON", "IRVING",  "LADYSMITH",
+    "LAVONIA",    "LINTHICUMHEI",    "NEWARK",    "OAKTON",    "PARAMUS",    "RICHMOND",    "ROSSLYN",    "RUTHERGLEN",    "SANFRANCISCO",
+    "SMITHFI ELD",    "SPRING L AKE",    "WARRENTON",    "WASHIGNTON",    "WASHINGTON",    "WAYNESBORO",    "WINTERGREEN"
+    )
 )
 
 spending$City = ""
 
 for(key in city){
   for(value in key){
-    spending$City <- ifelse(grepl(value, spending$Description), value, spending$City)
+    spending$City <- ifelse(grepl(value, toupper(gsub(' ','', spending$Description))), value, spending$City)
   }
 }
 
+rm(city)
+
 ### Create new column State
 state = list(
-  c(" DC ", " VA ", " MD ", " CA ", " NJ ", " GA "," TX "," DE ")
-)
+  #c(" DC ", " VA ", " MD ", " CA ", " NJ ", " GA "," TX "," DE "," WA ")
+  " AK "," AZ "," AR "," CA "," CO "," CT "," DE "," FL "," GA "," HI "," ID "," IL "," IN "," IA "," KS "," KY "," LA "," ME "," MD ",
+  " MA "," MI "," MN "," MS "," MO "," MT "," NE "," NV "," NH "," NJ "," NM "," NY "," NC "," ND "," OH "," OK "," OR "," PA "," RI ",
+  " SC "," SD "," TN "," TX "," UT "," VT "," VA "," WA "," WV "," WI "," WY "," DC ",
+  " A K "," A Z "," A R "," C A "," C O "," C T "," D E "," F L "," G A "," H I "," I D "," I L "," I N "," I A "," K S "," K Y "," L A ",
+  " M E "," M D "," M A "," M I "," M N "," M S "," M O "," M T "," N E "," N V "," N H "," N J "," N M "," N Y "," N C "," N D "," O H ",
+  " O K "," O R "," P A "," R I "," S C "," S D "," T N "," T X "," U T "," V T "," V A "," W A "," W V "," W I "," W Y "," D C "
+  )
 
 spending$State = ""
 
@@ -148,20 +271,22 @@ for(key in state){
     spending$State <- ifelse(grepl(value, spending$Description), value, spending$State)
   }
 }
+spending$State <- gsub(' ','', spending$State)
 
-#spending_state_null <- spending %>% filter(spending$State == "")
-
-## format Amount as number
-spending$Amount <- gsub("\\(", "-",spending$Amount)
-spending$Amount <- gsub("\\)", "",spending$Amount)
-spending$Amount <- gsub("\\$", "",spending$Amount)
-spending$Amount <- gsub(",", "",spending$Amount)
-spending$Amount <- as.numeric(spending$Amount)
+rm(state)
 
 ## format Purchase, Category and Type
 spending$Purchase <- toupper(gsub('_', ' ', spending$Purchase))
 spending$Category <- toupper(gsub('_', ' ', spending$Category))
 spending$Type <- toupper(gsub('_', ' ', spending$Type))
+spending$City <- toupper(spending$City)
+
+spending$Type <- factor(spending$Type, levels = c("INCOME",
+                                                  "MONTHLY BILLS",
+                                                  "DAY TO DAY",
+                                                  "VENMO",
+                                                  "AD HOC PURCHASES",
+                                                  "SAVINGS TRANSFERS"))
 
 ### DATE
 
@@ -204,10 +329,6 @@ for(i in 1:NROW(spending)){
       }
 }
 
-# drop unnecessary columns
-keeps <- c("Description", "Amount", "New_Date", "Date", "Purchase", "Category", "Type", "City", "State")
-spending <- spending[keeps]
-
 # formatting New_Date
 spending$New_Date <- gsub("-", "/", spending$New_Date)
 spending$New_Date <- gsub(" ", "", spending$New_Date)
@@ -232,7 +353,7 @@ for(i in 1:NROW(spending)){
   }
 }
 
-# Issue: when year is extracted from original date when no included in the description-extracted date, the year might be wrong at
+# Issue: when year is extracted from original date when not included in the description-extracted date, the year might be wrong at
 # the beginning of the year 
 # correct incorrect years
 
@@ -245,59 +366,54 @@ for(i in 1:NROW(spending)){
   }
 }
 
-# drop unnecessary columns
-keeps <- c("Description", "Amount", "New_Date", "Purchase", "Category", "Type", "City", "State")
-spending <- spending[keeps]
-
-
-### Fix specific purchases to align them with the correct date/type/etc if incorrect (be specific in comments)
-
-# 1: Fix date of first month at Riverhouse (month should be August, was actually paid 7/31/2018)
-for(i in 1:NROW(spending)){
-  if(spending$Category[i]=="RENT UTILITIES" & spending$New_Date[i]=="2018-07-31"){
-    spending$New_Date[i] <- "2018-08-01"
-  }
-}
-
-# 2: There are 2 phone plan payments in October and none in September. Change the date of the 2018-10-01 payment to 09-30
-for(i in 1:NROW(spending)){
-  if(spending$Category[i]=="PHONE PLAN" & spending$New_Date[i]=="2018-10-01"){
-    spending$New_Date[i] <- "2018-09-30"
-  }
-}
-# 
-# # 3: I cover the family phone plan, and am venmoed for everyone elses share. Therefore I actually end up paying $90
-# for(i in 1:NROW(spending)){
-#   if(spending$Category[i]=="PHONE PLAN"){
-#     spending$Amount[i] <- -90
-#   }
-# }
-
-# To make these issues fix themselves in the future, write a function that checks to see if each month has multiple of
-# same monthly bills charged to the same month, and if true, move the later bill to the next month
-
 # Create column Weekday
 spending$Weekday <- weekdays(spending$New_Date)
+spending$Weekday <- factor(spending$Weekday, 
+                                      levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
 #Create column Month
-spending$Month <- months(spending$New_Date)
-spending$Month <- recode(spending$Month,
-                         August="01_August",
-                         September="02_September",
-                         October="03_October",
-                         November="04_November",
-                         December="05_December",
-                         January="06_January",
-                         February="07_February",
-                         March="08_March",
-                         April="09_April",
-                         May="10_May",
-                         June="11_June",
-                         July="12_July")
 
-# Remove rows containing July spending
+## using forcats
+spending$Month <- months(spending$New_Date)
+spending$Month <- factor(spending$Month, levels = c( "June", "July","August","September", "October", "November", "December",
+                                                     "January","February", "March", "April", "May"))
+
+# Remove rows in current month
 spending <- spending%>%
-  filter(New_Date > "2018-07-31")
+#  filter(New_Date < Latest) %>%
+  filter(New_Date >= Earliest)
+
+# drop unnecessary columns
+spending <- spending %>%
+  select(Date=New_Date, Amount, Description, Purchase, Category, Type, City, State, Payment=Payment_Method, Weekday, Month)
+
+# Check for nulls after running the script once
+# nulls <- filter(spending, is.na(Type))
+# write.csv(nulls, "Nulls.csv")
+
+####################################################################################################################################
+
+################################################### PIVOT TABLES ###################################################################
+
+### Create Table Total Spending by Category
+# First, exclude the latest month as it is incomplete and will make averages per month misleading
+latest_month <- months(max(spending$Date))
+
+spending_full_months <- spending %>%
+  filter(Month != latest_month)
+
+Ordered_Spending <- spending_full_months %>%
+  group_by(Category)%>%
+  summarise(Total=sum(Amount)) %>%
+  mutate(Average = Total/sum(table(unique(spending_full_months$Month)))) %>%
+  select(Category, Average) %>%
+  setorder(Average)
+
+rm(spending_full_months)
+
+# turn Category into a factor column according to the ordered spending table order
+# this will cause tables broken out by Category to order based on average spending, highest to lowest
+spending$Category <- factor(spending$Category, levels = Ordered_Spending$Category)
 
 # Pivot: Monthly Bills
 Monthly_Bills <- spending %>%
@@ -305,32 +421,6 @@ Monthly_Bills <- spending %>%
   group_by(Month, Category)%>%
   summarise(Total = sum(Amount))%>%
   spread(Month, Total, fill=0)
-
-# Pivot: Monthly Bills Total
-Total_Monthly_Bills <- spending %>%
-  filter(Type=="MONTHLY BILLS")%>%
-  group_by(Month, Type)%>%
-  summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-# Combine Monthly Bills and Monthly Bills Total
-Monthly_Bills_Table <- rbindlist(list(Monthly_Bills, Total_Monthly_Bills))
-
-# Add average column and sort on it
-##############################################################################
-Monthly_Bills_Table$Total <- 0
-Monthly_Bills_Table$Average <- 0
-
-for(i in 1:nrow(Monthly_Bills_Table)){
-  Monthly_Bills_Table$Total[i] <- sum(Monthly_Bills_Table[i,2:(ncol(Monthly_Bills_Table)-2)])
-}
-
-for(i in 1:nrow(Monthly_Bills_Table)){
-  Monthly_Bills_Table$Average[i] <- Monthly_Bills_Table$Total[i] / (ncol(Monthly_Bills_Table)-3)
-}
-
-Monthly_Bills_Table <- setorderv(Monthly_Bills_Table, "Average", order=1L)
-##################################################################################
 
 #### Create table for Day-To-Day purchases
 
@@ -341,220 +431,154 @@ Daily_Spending <- spending %>%
   summarise(Total = sum(Amount))%>%
   spread(Month, Total, fill=0)
 
-# Pivot: Day-to-Day Spending
-Total_Daily_Spending <- spending %>%
-  filter(Type=="DAY TO DAY")%>%
-  group_by(Month, Type)%>%
-  summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-Day_To_Day_Spending_Table <- rbindlist(list(Daily_Spending, Total_Daily_Spending))
-
-Day_To_Day_Spending_Table$Total <- 0
-Day_To_Day_Spending_Table$Average <- 0
-
-for(i in 1:nrow(Day_To_Day_Spending_Table)){
-  Day_To_Day_Spending_Table$Total[i] <- sum(Day_To_Day_Spending_Table[i,2:(ncol(Day_To_Day_Spending_Table)-2)])
-}
-
-for(i in 1:nrow(Day_To_Day_Spending_Table)){
-  Day_To_Day_Spending_Table$Average[i] <- Day_To_Day_Spending_Table$Total[i] / (ncol(Day_To_Day_Spending_Table)-3)
-}
-
-Day_To_Day_Spending_Table <- setorderv(Day_To_Day_Spending_Table, "Average", order=1L)
-
-
 #### Create table for Provisional purchases
 
 # Pivot: Provisional Spending
+
+# We need to filter to the categories in Type=Ad hoc because if we filter on type before the spread, we lose months with no provisional
+# spending. Since other spending types have higher frequencies, they shouldnt have the same issues.
+
 Provisional_Spending <- spending %>%
-  filter(Type=="AD HOC PURCHASES")%>%
+#  filter(Type=="AD HOC PURCHASES")%>%
   group_by(Month, Category)%>%
   summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-# Pivot: Provisional Spending
-Total_Provisional_Spending <- spending %>%
-  filter(Type=="AD HOC PURCHASES")%>%
-  group_by(Month, Type)%>%
-  summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-Provisional_Spending_Table <- rbindlist(list(Provisional_Spending, Total_Provisional_Spending))
-
-Provisional_Spending_Table$Total <- 0
-Provisional_Spending_Table$Average <- 0
-
-for(i in 1:nrow(Provisional_Spending_Table)){
-  Provisional_Spending_Table$Total[i] <- sum(Provisional_Spending_Table[i,2:(ncol(Provisional_Spending_Table)-2)])
-}
-
-for(i in 1:nrow(Provisional_Spending_Table)){
-  Provisional_Spending_Table$Average[i] <- Provisional_Spending_Table$Total[i] / (ncol(Provisional_Spending_Table)-3)
-}
-
-Provisional_Spending_Table <- setorderv(Provisional_Spending_Table, "Average", order=1L)
-
-
-#### Create venmo table
-
-# Pivot: Venmo Transactions
-Venmo_Transactions <- spending %>%
-  filter(Type=="VENMO")%>%
-  group_by(Month, Category)%>%
-  summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-# Pivot: Provisional Spending
-Total_Venmo_Transactions <- spending %>%
-  filter(Type=="VENMO")%>%
-  group_by(Month, Type)%>%
-  summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-Venmo_Table <- rbindlist(list(Venmo_Transactions, Total_Venmo_Transactions))
-
-#### Create total spending table
-
-Total_Spending <- spending %>%
-  filter(Type!="SAVINGS TRANSFERS" & Type!="INCOME")%>%
-  group_by(Month)%>%
-  summarise(Total=sum(Amount))%>%
-  spread(Month, Total, fill=0)
-
-Total_Spending_Table <- rbindlist(list(Total_Provisional_Spending, Total_Daily_Spending, Total_Monthly_Bills, Total_Venmo_Transactions, Total_Spending), fill = TRUE)
-
-####### Total Income
-
-Total_Income <- spending %>%
-  filter(Type=="INCOME")%>%
-  group_by(Month, Type)%>%
-  summarise(Total=sum(Amount))%>%
-  spread(Month, Total, fill=0)
+  spread(Month, Total, fill=0) %>%
+  filter(Category %in% c("CLOTHES SHOES", "TRAVEL", "ELECTRONICS MOVIES BOOKS", "GIFTS HOLIDAYS", 
+                         "HOUSEHOLD ITEMS", "DONATIONS", "ONLINE PURCHASES"))
   
 ####### Total Net Spending
 
-Total_Net_Spending <- spending %>%
-  filter(Type!="SAVINGS TRANSFERS")%>%
+Net_Spending_Savings <- spending %>%
+  group_by(Month, Type)%>%
+  summarise(Total=sum(Amount))%>%
+  spread(Month, Total, fill=0)
+
+Net_Spending <- Net_Spending_Savings[1:5,]
+Savings_Transfers <- Net_Spending_Savings[6,]
+
+Total_Spending <- spending %>%
+  filter(Type!="SAVINGS TRANSFERS", Type!="INCOME") %>%
   group_by(Month)%>%
   summarise(Total=sum(Amount))%>%
   spread(Month, Total, fill=0)
 
-Total_Net_Spending_Table <- rbindlist(list(Total_Income, Total_Monthly_Bills,  Total_Daily_Spending, Total_Provisional_Spending, Total_Venmo_Transactions, Total_Net_Spending), fill = TRUE)
+####### Total Income
 
-Total_Net_Spending_Table$Total <- 0
-Total_Net_Spending_Table$Average <- 0
+Total_Income <- Net_Spending_Savings[1,]
 
-for(i in 1:nrow(Total_Net_Spending_Table)){
-  Total_Net_Spending_Table$Total[i] <- sum(Total_Net_Spending_Table[i,2:(ncol(Total_Net_Spending_Table)-2)])
-}
+rm(Net_Spending_Savings)
 
-for(i in 1:nrow(Total_Net_Spending_Table)){
-  Total_Net_Spending_Table$Average[i] <- Total_Net_Spending_Table$Total[i] / (ncol(Total_Net_Spending_Table)-3)
-}
+###############################################################################################################################
 
-##############################################################################################################
+######## EXCEL #########
 
-
-### Create a pivot of Day-to-Day Purchase counts 
-
-# Pivot: 20 Most Frequent Purchases this month (ordered by the most recent month)
-Monthly_Purchase_Count <- spending %>%
-  filter(Type=="DAY TO DAY")%>%
-  group_by(Month, Purchase)%>%
-  summarise(Total = n())%>%
-  spread(Month, Total, fill=0)%>%
-  as.data.frame()
-
-Monthly_Purchase_Count$Total <- 0
-Monthly_Purchase_Count$Average <- 0
-
-for(i in 1:nrow(Monthly_Purchase_Count)){
-  Monthly_Purchase_Count$Total[i] <- sum(Monthly_Purchase_Count[i,2:(ncol(Monthly_Purchase_Count)-2)])
-}
-
-for(i in 1:nrow(Monthly_Purchase_Count)){
-  Monthly_Purchase_Count$Average[i] <- Monthly_Purchase_Count$Total[i] / (ncol(Monthly_Purchase_Count)-3)
-}
-
-Monthly_Purchase_Count <- setorderv(Monthly_Purchase_Count, "Average", order=-1L)
-
-Top_20_Purchases_Count <- Monthly_Purchase_Count[1:20,]
-
-
-# Pivot: 20 Most Frequent Purchases this month (ordered by the most recent month)
-Monthly_Purchase_Amount <- spending %>%
-  filter(Type=="DAY TO DAY")%>%
-  group_by(Month, Purchase)%>%
-  summarise(Total = sum(Amount))%>%
-  spread(Month, Total, fill=0)%>%
-  as.data.frame()
-
-Monthly_Purchase_Amount$Total <- 0
-Monthly_Purchase_Amount$Average <- 0
-
-for(i in 1:nrow(Monthly_Purchase_Amount)){
-  Monthly_Purchase_Amount$Total[i] <- sum(Monthly_Purchase_Amount[i,2:(ncol(Monthly_Purchase_Amount)-2)])
-}
-
-for(i in 1:nrow(Monthly_Purchase_Amount)){
-  Monthly_Purchase_Amount$Average[i] <- Monthly_Purchase_Amount$Total[i] / (ncol(Monthly_Purchase_Amount)-3)
-}
-
-Monthly_Purchase_Amount <- setorderv(Monthly_Purchase_Amount, "Average", order=1L)
-
-Top_20_Purchases_Amount <- Monthly_Purchase_Amount[1:20,]
-
-#############################################################################################
-
-#### Count
-# Pivot: Day-to-Day Spending
-Daily_Spending_Cat_Count <- spending %>%
-  filter(Type=="DAY TO DAY")%>%
-  group_by(Month, Category)%>%
-  summarise(Total = n())%>%
-  spread(Month, Total, fill=0)
-
-# Pivot: Day-to-Day Spending
-Total_Daily_Spending_Cat_Count <- spending %>%
-  filter(Type=="DAY TO DAY")%>%
-  group_by(Month, Type)%>%
-  summarise(Total = n())%>%
-  spread(Month, Total, fill=0)
-
-Day_To_Day_Spending_Count_Table <- rbindlist(list(Daily_Spending_Cat_Count, Total_Daily_Spending_Cat_Count))
-
-Day_To_Day_Spending_Count_Table$Total <- 0
-Day_To_Day_Spending_Count_Table$Average <- 0
-
-for(i in 1:nrow(Day_To_Day_Spending_Count_Table)){
-  Day_To_Day_Spending_Count_Table$Total[i] <- sum(Day_To_Day_Spending_Count_Table[i,2:(ncol(Day_To_Day_Spending_Count_Table)-2)])
-}
-
-for(i in 1:nrow(Day_To_Day_Spending_Count_Table)){
-  Day_To_Day_Spending_Count_Table$Average[i] <- Day_To_Day_Spending_Count_Table$Total[i] / (ncol(Day_To_Day_Spending_Count_Table)-3)
-}
-
-Day_To_Day_Spending_Count_Table <- setorderv(Day_To_Day_Spending_Count_Table, "Average", order=-1L)
-
-
-#################### TO DO:
-
-# Remove totals from each table
-# Graphics of each pivot in ggplot
-## Map of where day to day money is spent
-## historams of spending
-
-# all the averages after the first i are including the average column in the calculation (which is why as.numeric is necessary)
-# workaround: create a total column first, and then create a new column that divides the total column by the number of months
-
-# FINAL TABLES
-# Monthly_Bills_Table
-# Day_To_Day_Spending_Table
-# Provisional_Spending_Table
-# Total_Spending_Table
-# Total_Net_Spending_Table
+# Daily_Spending_Cat_Count
+# Spending_by_Weekday
 # Top_20_Purchases_Amount
 # Top_20_Purchases_Count
-# Day_To_Day_Spending_Count_Table
 
+## Create styles
+
+Title <- createStyle(halign = "left", valign = "center", textDecoration = "bold")
+
+Headers <- createStyle(fontColour = "#FFFFFF", border = c("top", "bottom", "left", "right"), 
+                       fgFill = "#6495ED", halign = "center", valign = "center",
+                       textDecoration = "bold")
+
+Numbers <- createStyle(numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"??_);_(@_)', border = c("top", "bottom", "left", "right"),
+                       halign = "right", valign = "center")
+
+Total <- createStyle(border = c("top", "bottom", "left", "right"), 
+                     fgFill = "#C0C0C0", halign = "center", valign = "center")
+
+Double_Border <- createStyle(border = "bottom", borderStyle = "double")
+
+## Create a new workbook
+
+wb <- createWorkbook(creator = "Thomas"
+                     , title = "Monthly Spending Report"
+                     , subject = "June 2019 to Present Spending Breakdown")
+
+addWorksheet(wb, "Month To Month")
+
+# FOOTNOTES
+min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
+max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
+
+footnote <- paste0("This report includes transactions occurring from ", min_date, " through ", max_date, ". The month of ", latest_month, 
+                  " is not complete. Averages only include complete months.")
+
+writeData(wb,"Month To Month", footnote, startCol = 1, startRow = 1)
+
+# Table: Month To Month AND INCOME BY TYPE
+writeData(wb,"Month To Month", "ALL SPENDING AND INCOME (AFTER TAX)", startCol = 5, startRow = 2)
+
+writeData(wb,"Month To Month", Total_Income, startCol = 5, startRow = 3, borders = "all")
+writeData(wb,"Month To Month", "TOTAL SPENDING", startCol = 5, startRow = 5, borders = "all")
+writeData(wb,"Month To Month", Total_Spending, startCol = 6, startRow = 5, colNames = FALSE, borders = "all")
+writeData(wb,"Month To Month", Net_Spending[2:5,], startCol = 5, startRow = 6, colNames = FALSE, borders = "all")
+conditionalFormatting(wb, "Month To Month", cols=6:(5+length(Total_Spending)), rows=4:9, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+
+# SAVINGS TRANSFERS
+writeData(wb,"Month To Month", "SAVINGS DEBITS AND CREDITS", startCol = 5, startRow = 11, borders = "all")
+addStyle(wb, "Month To Month", Title, rows=11, cols=5)
+writeData(wb,"Month To Month", Savings_Transfers, startCol = 5, startRow = 12, borders = "all")
+addStyle(wb, "Month To Month", Headers, cols=c(5:(5+length(Total_Spending))), rows=12)
+addStyle(wb, "Month To Month", Numbers, rows=13, cols=6:(5+length(Total_Spending)))
+conditionalFormatting(wb, "Month To Month", cols=6:(5+length(Total_Spending)), rows=13, style = c("#63BE7B", "#FFEB84", "#F8696B"), type = "colourScale")
+
+# Table: AVERAGE SPENDING AND INCOME BY CATEGORY
+writeData(wb,"Month To Month", "AVERAGE MONTHLY SPENDING AND INCOME", startCol = 2, startRow = 2)
+writeData(wb,"Month To Month", Ordered_Spending, startCol = 2, startRow = 3, borders = "all")
+conditionalFormatting(wb, "Month To Month", cols=3, rows=4:30, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+
+# Add Styles
+addStyle(wb, "Month To Month", Title, rows=c(2,2), cols=c(2,5), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Month To Month", Headers, cols=c(2:3), rows=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Month To Month", Headers, cols=c(5:(5+length(Total_Spending))), rows=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Month To Month", Numbers, rows=4:9, cols=6:(5+length(Total_Spending)), gridExpand = TRUE, stack = FALSE)
+addStyle(wb, "Month To Month", Numbers, rows=c(4:30), cols=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Month To Month", Total, rows=5, cols=5, gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Month To Month", Double_Border, rows=5, cols=5:(5+length(Total_Spending)), gridExpand = FALSE, stack = TRUE)
+
+# Table: MONTHLY BILLS
+writeData(wb,"Month To Month", "MONTHLY BILLS", startCol = 5, startRow = 15)
+writeData(wb,"Month To Month", Monthly_Bills, startCol = 5, startRow = 16, borders = "all")
+addStyle(wb, "Month To Month", Title, rows=15, cols=5)
+addStyle(wb, "Month To Month", Headers, rows=16, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Month To Month", Numbers, rows=17:23, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Month To Month", rows=17:23, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+
+# Table: DAILY SPENDING
+writeData(wb,"Month To Month", "DAY TO DAY SPENDING", startCol = 5, startRow = 25)
+writeData(wb,"Month To Month", Daily_Spending, startCol = 5, startRow = 26, borders = "all")
+addStyle(wb, "Month To Month", Title, rows=25, cols=5)
+addStyle(wb, "Month To Month", Headers, rows=26, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Month To Month", Numbers, rows=27:35, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Month To Month", rows=27:35, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+
+# Table: PROVISIONAL SPENDING
+# Table: DAILY SPENDING
+writeData(wb,"Month To Month", "AD HOC SPENDING", startCol = 5, startRow = 37)
+writeData(wb,"Month To Month", Provisional_Spending, startCol = 5, startRow = 38, borders = "all")
+addStyle(wb, "Month To Month", Title, rows=37, cols=5)
+addStyle(wb, "Month To Month", Headers, rows=38, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Month To Month", Numbers, rows=39:44, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Month To Month", rows=39:44, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+
+
+## Tab column widths
+setColWidths(wb, "Month To Month", cols=2, widths = 31)
+setColWidths(wb, "Month To Month", cols=5, widths = 24)
+setColWidths(wb, "Month To Month", cols=c(3,6:(5+length(Total_Spending))), widths = 12)
+
+# Gridlines
+showGridLines(wb, "Month To Month", showGridLines = FALSE)
+
+### Save the workbook
+#saveWorkbook(wb, "../Monthly Spending.xlsx", overwrite = TRUE)
+
+saveWorkbook(wb, paste0("../Spending Report ", gsub("/", "-", min_date), " To ", gsub("/", "-", max_date), ".xlsx"), overwrite = TRUE)
+
+### Plotting
+ggplot(spending, aes(x=Month, y=Amount, fill=Type)) + geom_bar(stat="identity")
