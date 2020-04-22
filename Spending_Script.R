@@ -92,7 +92,7 @@ purchases = list(
             'TROLLEY MARKET','QT 885 0800', 'SHELL SERVICE STATION','BP#9708157CARY ST','Z MARKET','UNIVERSAL WINE & L', 'HUDSON',
             'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR','WALGREENS','SHEETZ','REAMS MARKET',
             "AKJK CROWN",'BI-LO GROCERY','SPEEDWAY',"SPEEDY'S MART",'SUNNYS MARKET','CHEVRON FOOD MART','PUBLIX SUPER MAR',
-            'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL','TOKYO MARKET'
+            'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL','TOKYO MARKET','TARGET'
             ),
   household_items = c("LOWE'S",'BEDBATH&BEYOND','IKEA','NNT COST PLUS', 'GOODWILL','BED BATH & BEYOND','STAPLES'
                       ),
@@ -129,7 +129,7 @@ purchases = list(
                  "SMOOTHIE","ROAEATSTR",'FIRE & HOPS','IHOP','OYAMEL',"ROSTOV'S COFFEE & TEA",'KPHTH LLC','FOODA INC','GREEK ON CARY'
                  ),
   lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
-  clothes_shoes = c('GAP US','TARGET','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
+  clothes_shoes = c('GAP US','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
                     'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW"
                     ),
   electronics_movies_books = c('BEST BUY','WAL-MART','NINTENDO','GOOGLE','BARNESNOBLE','HBOOKSELLER','M JUDSON BOOKSELLE',"INSTYLE FIX"
@@ -142,7 +142,7 @@ purchases = list(
                      "ARTECHOUSE","LINCOLN THEATRE",'ALOHA SAFARI ZOO'),
   gifts_holidays = c('PREPAID','MOOSE APPLE CHRIST','Amzn.com/bill','ACACIA MID-TOWN','GAMESTOP #4101 1100 S HAY 12-23-18',
                      'VZW WEBPAY VZ WIRELESS','BRANDYLANE PUB',"L2ATOM51",'RICHARD VARIETY ST','GUAVA FAMILY INC',
-                     'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S'
+                     'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S','TARGET.COM'
                      ),
 #  groceries = c('HARRIS TEETER', 'KROGER','FOOD LION'),
   media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime','APPLE.COM/BILL'),
@@ -167,7 +167,8 @@ purchases = list(
                     'PENSKE TRK', 'PAY PAL *PAULINEOGEM', 'FANTASTIC THRIF','TEN THOUSAND', 'VNO PENTAGON PLAZA','COINMACH',
                     "L'ENFANT WEST","MYEYEDR","ARAMARK REFRESHMENTS","FMB LAUNDRY","INTUIT",'EXXONMOBIL'
                     ),
-  online_purchases = c('AMZN DIGITAL','Amazon.com*MB7H24C','AMZN Mktp','JIBJAB ECARDS',"AMAZON.COM","AMZN MKTP")
+  online_purchases = c('AMZN DIGITAL','Amazon.com*MB7H24C','AMZN Mktp','JIBJAB ECARDS',"AMAZON.COM","AMZN MKTP",
+                       "DATACAMP INC")
 )
 
 # Miscellaneous: Laundry, Haircut, Parking, Books, Withdrawal, Snack, Shipping Online Purchase, Donations, Scam
