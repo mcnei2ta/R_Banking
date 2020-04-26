@@ -1,0 +1,63 @@
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+
+############################################### HEADER ##################################################
+header <- dashboardHeader()
+
+############################################### SIDEBAR ##################################################
+sidebar <- dashboardSidebar(
+  sidebarMenu(
+    # Create two `menuItem()`s, "Dashboard" and "Inputs"
+    menuItem(
+      text = "Raw Data",
+      tabName = "spending_table"
+    ),
+    menuItem(
+      text = "Summary Table",
+      tabName = "spending_graph"
+    )
+  )
+)
+
+############################################### BODY ##################################################
+body <- dashboardBody(
+  tabItems(
+    # Add two tab items, one with tabName "dashboard" and one with tabName "inputs"
+    tabItem(tabName = "spending_table",
+              fluidRow(
+                column(
+                  width = 1,
+                    box(
+                      width = NULL,
+                      title = "Columns",
+                      checkboxGroupInput("show_vars","select columns",
+                                         names(spending), selected = names(spending))
+                )),
+              column(
+                width = 11,
+                box(
+                  width = NULL,
+                  title = "Spending Data",
+                  DT::dataTableOutput("mytable1")
+                ))
+            )),
+    tabItem(tabName = "spending_graph")
+ )
+)
+
+############################################### UI / SERVER ##################################################
+# Create the UI using the header, sidebar, and body
+ui <- dashboardPage(header, sidebar, body)
+
+#spending_data <- load("C:/Users/592798/Documents/Monthly Spending Reports/04252020_Updated/spending_data.rda")
+
+server <- function(input, output) {
+  # data
+#  spending2 = spending[sample(nrow(spending), 1000), ]
+  output$mytable1 <- DT::renderDataTable({
+    DT::datatable(spending[, input$show_vars, drop = FALSE])
+  })
+}
+
+shinyApp(ui, server)
