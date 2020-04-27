@@ -30,15 +30,15 @@ body <- dashboardBody(
                   width = 1,
                     box(
                       width = NULL,
-                      title = "Columns",
-                      checkboxGroupInput("show_vars","select columns",
+                      title = "COLUMNS",
+                      checkboxGroupInput("show_vars","Show Columns:",
                                          names(spending), selected = names(spending))
                 )),
               column(
                 width = 11,
                 box(
                   width = NULL,
-                  title = "Spending Data",
+                  title = "DATA",
                   DT::dataTableOutput("mytable1")
                 ))
             )),
@@ -48,15 +48,26 @@ body <- dashboardBody(
 
 ############################################### UI / SERVER ##################################################
 # Create the UI using the header, sidebar, and body
-ui <- dashboardPage(header, sidebar, body)
+ui <- dashboardPage(header, sidebar, body, title = "Spending")
 
 #spending_data <- load("C:/Users/592798/Documents/Monthly Spending Reports/04252020_Updated/spending_data.rda")
+min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
+max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
+description <- paste0("This table includes all debit and credit transactions occurring from ", min_date, " through ", max_date, ".")
 
 server <- function(input, output) {
   # data
-#  spending2 = spending[sample(nrow(spending), 1000), ]
+  options(DT.options = list(
+    pageLength = 50, 
+    dom = 'ltipr' #lftipr
+                 # l = "show __ entries", f = search bar, t = ?, i = "showing 1 to 50 of __ entries", p = page numbers, r = 
+    ))
   output$mytable1 <- DT::renderDataTable({
-    DT::datatable(spending[, input$show_vars, drop = FALSE])
+    DT::datatable(spending[, input$show_vars, drop = FALSE], 
+                  selection = 'single', 
+                  rownames = F, 
+                  caption = description, 
+                  filter = 'top')
   })
 }
 
