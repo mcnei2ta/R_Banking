@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(dplyr)
+library(DT)
 
 ############################################### HEADER ##################################################
 header <- dashboardHeader()
@@ -55,9 +56,16 @@ server <- function(input, output) {
   # data
   options(DT.options = list(
     pageLength = 50,
-    dom = 'ltipr' #lftipr
-                 # l = "show __ entries", f = search bar, t = ?, i = "showing 1 to 50 of __ entries", p = page numbers, r = 
-    ))
+    dom = 'ltipr', #lftipr
+    columnDefs = list(list(
+      targets = 0:10, #names(#[sapply(#, is.character)]),
+      render = JS(
+        "function(data, type, row, meta) {",
+        "return type === 'display' && data.length > 15 ?",
+        "'<span title=\"' + data + '\">' + data.substr(0, 15) + '...</span>' : data;",
+        "}")
+    ))), callback = JS('table.page(3).draw(false);')
+    )
   output$mytable1 <- DT::renderDataTable({
     DT::datatable(spending[, input$show_vars, drop = FALSE], 
                   selection = 'single', 
