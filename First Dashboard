@@ -28,17 +28,13 @@ body <- dashboardBody(
               fluidRow(
                 column(
                   width = 1,
-                    box(
-                      width = NULL,
-                      title = "COLUMNS",
-                      checkboxGroupInput("show_vars","Show Columns:",
-                                         names(spending), selected = names(spending))
-                )),
+                  checkboxGroupInput("show_vars","Show Columns:", names(spending), selected = names(spending))
+                ),
               column(
                 width = 11,
                 box(
                   width = NULL,
-                  title = "DATA",
+                  title = "Credit and Debit Transactions",
                   DT::dataTableOutput("mytable1")
                 ))
             )),
@@ -58,7 +54,7 @@ description <- paste0("This table includes all debit and credit transactions occ
 server <- function(input, output) {
   # data
   options(DT.options = list(
-    pageLength = 50, 
+    pageLength = 50,
     dom = 'ltipr' #lftipr
                  # l = "show __ entries", f = search bar, t = ?, i = "showing 1 to 50 of __ entries", p = page numbers, r = 
     ))
