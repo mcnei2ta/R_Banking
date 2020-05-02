@@ -126,9 +126,10 @@ purchases = list(
                  'WHITEHALL TAV','IBERIAN PIG','AMORINO ATLANT','LITTLE MEXICO', 'EPIC SMOKEHOUSE', "KIRWAN'S ON THE WH",
                  'DOLCEZZA GELATO', 'NEW YORK STYLE','SUSHI HIBACHI BIST','BANGKOK 54 RESTAUR', 'FUEL PUMP', 'WAFFLE HOUSE','A DELI',
                  'PIZZA & BEERS', '&PIZZA',"JACK BROWNS","THE TOBACCO COMPAN","THE FRANKLIN INN","DOMINO'S","BOULEVARD BURGER",
-                 "SMOOTHIE","ROAEATSTR",'FIRE & HOPS','IHOP','OYAMEL',"ROSTOV'S COFFEE & TEA",'KPHTH LLC','FOODA INC','GREEK ON CARY'
-  ),
-  lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
+                 "SMOOTHIE","ROAEATSTR",'FIRE & HOPS','IHOP','OYAMEL',"ROSTOV'S COFFEE & TEA",'KPHTH LLC','FOODA INC','GREEK ON CARY',
+                 'POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"
+                 ),
+#  lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
   clothes_shoes = c('GAP US','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
                     'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW"
   ),
@@ -211,7 +212,7 @@ spending <- spending%>%
 
 ### create new column Type
 types = list(
-  day_to_day = c('eating_out','stores_groceries','rideshares','bars', 'lunch', #groceries',
+  day_to_day = c('eating_out','stores_groceries','rideshares','bars', #'lunch', #groceries',
                  'metro','extra','trains_buses','laundry','snack','withdrawal','haircut','books','shipping_online_purchase',
                  'parking','fun_activities','miscellaneous'),
   monthly_bills = c('media','phone','insurance',
@@ -536,14 +537,14 @@ conditionalFormatting(wb, "Month To Month", cols=6:(5+length(Total_Spending)), r
 # Table: AVERAGE SPENDING AND INCOME BY CATEGORY
 writeData(wb,"Month To Month", "AVERAGE MONTHLY SPENDING AND INCOME", startCol = 2, startRow = 2)
 writeData(wb,"Month To Month", Ordered_Spending, startCol = 2, startRow = 3, borders = "all")
-conditionalFormatting(wb, "Month To Month", cols=3, rows=4:30, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+conditionalFormatting(wb, "Month To Month", cols=3, rows=4:29, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
 
 # Add Styles
 addStyle(wb, "Month To Month", Title, rows=c(2,2), cols=c(2,5), gridExpand = FALSE, stack = FALSE)
 addStyle(wb, "Month To Month", Headers, cols=c(2:3), rows=c(3), gridExpand = FALSE, stack = FALSE)
 addStyle(wb, "Month To Month", Headers, cols=c(5:(5+length(Total_Spending))), rows=c(3), gridExpand = FALSE, stack = FALSE)
 addStyle(wb, "Month To Month", Numbers, rows=4:9, cols=6:(5+length(Total_Spending)), gridExpand = TRUE, stack = FALSE)
-addStyle(wb, "Month To Month", Numbers, rows=c(4:30), cols=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Month To Month", Numbers, rows=c(4:29), cols=c(3), gridExpand = FALSE, stack = FALSE)
 addStyle(wb, "Month To Month", Total, rows=5, cols=5, gridExpand = FALSE, stack = FALSE)
 addStyle(wb, "Month To Month", Double_Border, rows=5, cols=5:(5+length(Total_Spending)), gridExpand = FALSE, stack = TRUE)
 
@@ -560,17 +561,17 @@ writeData(wb,"Month To Month", "DAY TO DAY SPENDING", startCol = 5, startRow = 2
 writeData(wb,"Month To Month", Daily_Spending, startCol = 5, startRow = 26, borders = "all")
 addStyle(wb, "Month To Month", Title, rows=25, cols=5)
 addStyle(wb, "Month To Month", Headers, rows=26, cols=5:(5+length(Total_Spending)))
-addStyle(wb, "Month To Month", Numbers, rows=27:35, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
-conditionalFormatting(wb, "Month To Month", rows=27:35, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+addStyle(wb, "Month To Month", Numbers, rows=27:34, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Month To Month", rows=27:34, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
 
 # Table: PROVISIONAL SPENDING
 # Table: DAILY SPENDING
-writeData(wb,"Month To Month", "AD HOC SPENDING", startCol = 5, startRow = 37)
-writeData(wb,"Month To Month", Provisional_Spending, startCol = 5, startRow = 38, borders = "all")
-addStyle(wb, "Month To Month", Title, rows=37, cols=5)
-addStyle(wb, "Month To Month", Headers, rows=38, cols=5:(5+length(Total_Spending)))
-addStyle(wb, "Month To Month", Numbers, rows=39:44, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
-conditionalFormatting(wb, "Month To Month", rows=39:44, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+writeData(wb,"Month To Month", "AD HOC SPENDING", startCol = 5, startRow = 36)
+writeData(wb,"Month To Month", Provisional_Spending, startCol = 5, startRow = 37, borders = "all")
+addStyle(wb, "Month To Month", Title, rows=36, cols=5)
+addStyle(wb, "Month To Month", Headers, rows=37, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Month To Month", Numbers, rows=38:43, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Month To Month", rows=38:43, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
 
 
 ## Tab column widths
