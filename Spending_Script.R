@@ -18,7 +18,7 @@ library(openxlsx)
 ################################################ UPDATES
 
 # set working directory
-setwd("C:/Users/TAMcNeil/Documents/Spending/Data")
+setwd("C:/Users/592798/Documents/Monthly Spending Reports/04252020_Updated")
 
 
 # create a list of the names of all files in the working directory, call the list "files"
@@ -89,24 +89,24 @@ purchases = list(
   credit_payments = c("M-APP TRANSFER US","PAYMENT TO CREDIT CARD","CR CD PMT"),
   gym = c('GOLDS GYM'),
   stores_groceries = c('CVS/PHARMACY', 'RITE AID STORE', "UPPY'S", 'WAWA','CHEVRON/QUICKWAY MART','HUDSON NEWS','TOM THUMB STORE','TOMMYS 27',
-            'TROLLEY MARKET','QT 885 0800', 'SHELL SERVICE STATION','BP#9708157CARY ST','Z MARKET','UNIVERSAL WINE & L', 'HUDSON',
-            'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR','WALGREENS','SHEETZ','REAMS MARKET',
-            "AKJK CROWN",'BI-LO GROCERY','SPEEDWAY',"SPEEDY'S MART",'SUNNYS MARKET','CHEVRON FOOD MART','PUBLIX SUPER MAR',
-            'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL','TOKYO MARKET','TARGET'
-            ),
+                       'TROLLEY MARKET','QT 885 0800', 'SHELL SERVICE STATION','BP#9708157CARY ST','Z MARKET','UNIVERSAL WINE & L', 'HUDSON',
+                       'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR','WALGREENS','SHEETZ','REAMS MARKET',
+                       "AKJK CROWN",'BI-LO GROCERY','SPEEDWAY',"SPEEDY'S MART",'SUNNYS MARKET','CHEVRON FOOD MART','PUBLIX SUPER MAR',
+                       'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL','TOKYO MARKET','TARGET'
+  ),
   household_items = c("LOWE'S",'BEDBATH&BEYOND','IKEA','NNT COST PLUS', 'GOODWILL','BED BATH & BEYOND','STAPLES'
-                      ),
+  ),
   bars = c('CRYSTAL CITY SPORT', 'EL REY', 'FOX BROS BAR','LUCKY BAR',"ORMSBY'S",'SINE IRISH PUB','SOUTHERN RAILWAY T','ROCK AND ROLL',
-          'THE QUEEN VIC','THE FAINTING GOAT','ZEN BISTRO','BAJA BEAN','BARCODE','BASEMENT BAR','DON`T LOOK BACK','Flash','FLORA',
-          'HUDSON ST1468','LUCKY STRIKE WASHI','Mission','PEARL RAW BAR','POSTBELLUM','SARAHS PLACE','Sticky Rice','WHISKEY BUSINESS',
-          'YEOLDEBULLANDBUSH','LOCAL 16','Wet Dog Tavern','THE BRIGHTON','DC SANTA CRAWL','PIK NIK','Mockingbird Hill','CITY TAP HOUSE',
-          'ABIGAIL','CAFE CITRON','JEFFERSON TJS REST','F.W. SULLIVANS','WHITLOWS','CITY TAP','MARRIOTT RICHMOND','THUNDER GRILL',
-          'THE BROADBERRY','ALL SOULS','El Centro','BAR DECO','Rocket Bar','BAR LOUIE','FLASH','TIKI TNT','PUNCH BOWL',
-          "OSULLIVANS IRISH P", "COURTYARD RICHMOND", "WILSON HARDWARE", "DC 9", "AMERICAN ICE COMPA", "CRAFTHOUSE",'OLD SMOKEY BAR',
-          'NIGHTCLUB','TILLYS TIKI BAR','THE BEER LOT', 'EIGHTEENTH STREET','CAPITOL LOUNG','THE ANTHEM','GOAT','SOCIAL', 'QUINNS',
-          ' SAUF HAUS','MOES','BULLPEN','SAUF HAUS','KITH AND KIN','H STREET COUNTRY C','Bluejacket/The Yar', 'REBELLION ON',
-          "THE LIBERTY T", "U STREET MUSIC HAL","STICKY RICE","POOR BOYS","Roofers Union",'801 Restaurant and Bar','CARY STREET CAFE'
-          ),
+           'THE QUEEN VIC','THE FAINTING GOAT','ZEN BISTRO','BAJA BEAN','BARCODE','BASEMENT BAR','DON`T LOOK BACK','Flash','FLORA',
+           'HUDSON ST1468','LUCKY STRIKE WASHI','Mission','PEARL RAW BAR','POSTBELLUM','SARAHS PLACE','Sticky Rice','WHISKEY BUSINESS',
+           'YEOLDEBULLANDBUSH','LOCAL 16','Wet Dog Tavern','THE BRIGHTON','DC SANTA CRAWL','PIK NIK','Mockingbird Hill','CITY TAP HOUSE',
+           'ABIGAIL','CAFE CITRON','JEFFERSON TJS REST','F.W. SULLIVANS','WHITLOWS','CITY TAP','MARRIOTT RICHMOND','THUNDER GRILL',
+           'THE BROADBERRY','ALL SOULS','El Centro','BAR DECO','Rocket Bar','BAR LOUIE','FLASH','TIKI TNT','PUNCH BOWL',
+           "OSULLIVANS IRISH P", "COURTYARD RICHMOND", "WILSON HARDWARE", "DC 9", "AMERICAN ICE COMPA", "CRAFTHOUSE",'OLD SMOKEY BAR',
+           'NIGHTCLUB','TILLYS TIKI BAR','THE BEER LOT', 'EIGHTEENTH STREET','CAPITOL LOUNG','THE ANTHEM','GOAT','SOCIAL', 'QUINNS',
+           ' SAUF HAUS','MOES','BULLPEN','SAUF HAUS','KITH AND KIN','H STREET COUNTRY C','Bluejacket/The Yar', 'REBELLION ON',
+           "THE LIBERTY T", "U STREET MUSIC HAL","STICKY RICE","POOR BOYS","Roofers Union",'801 Restaurant and Bar','CARY STREET CAFE'
+  ),
   eating_out = c("BEAUVINE BURGER", "DESPERADOS BURGER", "BASIC BURGER", "BURGER KING", "BURGER BACH",'SAVI PHARR', 'STARBUCKS',
                  'AUNTIE ANNES', 'BREZZA CUCINA','BUCKHEAD IRISH PUB','CHIPOTLE','KOGIYA RESTAURANT',
                  "MCDONALD'S", "PAPA JOHN'S", 'RICHMOND AIRPORT','DC DONER',
@@ -127,13 +127,13 @@ purchases = list(
                  'DOLCEZZA GELATO', 'NEW YORK STYLE','SUSHI HIBACHI BIST','BANGKOK 54 RESTAUR', 'FUEL PUMP', 'WAFFLE HOUSE','A DELI',
                  'PIZZA & BEERS', '&PIZZA',"JACK BROWNS","THE TOBACCO COMPAN","THE FRANKLIN INN","DOMINO'S","BOULEVARD BURGER",
                  "SMOOTHIE","ROAEATSTR",'FIRE & HOPS','IHOP','OYAMEL',"ROSTOV'S COFFEE & TEA",'KPHTH LLC','FOODA INC','GREEK ON CARY'
-                 ),
+  ),
   lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
   clothes_shoes = c('GAP US','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
                     'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW"
-                    ),
+  ),
   electronics_movies_books = c('BEST BUY','WAL-MART','NINTENDO','GOOGLE','BARNESNOBLE','HBOOKSELLER','M JUDSON BOOKSELLE',"INSTYLE FIX"
-                               ),
+  ),
   insurance = c('STATE FARM INSURAN','STATE FARM INSURA'),
   fun_activities = c('AGECROFT HALL','DEGGELLER ATTRACTI','STATE FAI','MOVIELAND','REGAL POTOMAC YARD','RUSSELL FOODS',
                      'STONE MOUNTAIN','MOONRISE FESTI','STOCKYARD SPORTS','WM SUPERcenter','DC BRUNCH','REGAL CINEMAS',
@@ -143,14 +143,14 @@ purchases = list(
   gifts_holidays = c('PREPAID','MOOSE APPLE CHRIST','Amzn.com/bill','ACACIA MID-TOWN','GAMESTOP #4101 1100 S HAY 12-23-18',
                      'VZW WEBPAY VZ WIRELESS','BRANDYLANE PUB',"L2ATOM51",'RICHARD VARIETY ST','GUAVA FAMILY INC',
                      'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S','TARGET.COM'
-                     ),
-#  groceries = c('HARRIS TEETER', 'KROGER','FOOD LION'),
+  ),
+  #  groceries = c('HARRIS TEETER', 'KROGER','FOOD LION'),
   media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime','APPLE.COM/BILL'),
   phone = c('PAYMENTS VERIZON WIRELESS','VERIZON WRLS'),
   internet = c('VERIZON .COM','VERI ZON FL'),
   rent_utilities = c('PROPERTY PAYMENT'),
   salary_and_reimbursement = c('DIRECT DEP BOOZ ALLEN HAMIL','MOBILE DEPOSIT',"FUNDS XFER BRENTALIE", "VASTTAXRFD VA DEPT TAXATION", 
-                           "SBTPG LLC TAX PRODUCTS",'TAX REF IRS'),
+                               "SBTPG LLC TAX PRODUCTS",'TAX REF IRS'),
   student_loans = c('STUDNTLOAN'),
   transfer_from_savings = c('FROM SAVINGS'),
   transfer_to_savings = c('TO SAVINGS'),
@@ -166,7 +166,7 @@ purchases = list(
                     'GREAT CLIPS', 'COINMACH RIVER','PARKMOBILE','RIVER HOUSE VALET','VALET PARKIN',"RETURNED ITEM FEE",
                     'PENSKE TRK', 'PAY PAL *PAULINEOGEM', 'FANTASTIC THRIF','TEN THOUSAND', 'VNO PENTAGON PLAZA','COINMACH',
                     "L'ENFANT WEST","MYEYEDR","ARAMARK REFRESHMENTS","FMB LAUNDRY","INTUIT",'EXXONMOBIL'
-                    ),
+  ),
   online_purchases = c('AMZN DIGITAL','Amazon.com*MB7H24C','AMZN Mktp','JIBJAB ECARDS',"AMAZON.COM","AMZN MKTP",
                        "DATACAMP INC")
 )
@@ -242,7 +242,7 @@ city = list(
     "EMPORIA", "FT.WORTH",    "FTWORTH",    "GLENALLEN",    "GREENVILLE",    "HALETHORPE",   "HENRICO",  "HERNDON", "IRVING",  "LADYSMITH",
     "LAVONIA",    "LINTHICUMHEI",    "NEWARK",    "OAKTON",    "PARAMUS",    "RICHMOND",    "ROSSLYN",    "RUTHERGLEN",    "SANFRANCISCO",
     "SMITHFI ELD",    "SPRING L AKE",    "WARRENTON",    "WASHIGNTON",    "WASHINGTON",    "WAYNESBORO",    "WINTERGREEN"
-    )
+  )
 )
 
 spending$City = ""
@@ -264,7 +264,7 @@ state = list(
   " A K "," A Z "," A R "," C A "," C O "," C T "," D E "," F L "," G A "," H I "," I D "," I L "," I N "," I A "," K S "," K Y "," L A ",
   " M E "," M D "," M A "," M I "," M N "," M S "," M O "," M T "," N E "," N V "," N H "," N J "," N M "," N Y "," N C "," N D "," O H ",
   " O K "," O R "," P A "," R I "," S C "," S D "," T N "," T X "," U T "," V T "," V A "," W A "," W V "," W I "," W Y "," D C "
-  )
+)
 
 spending$State = ""
 
@@ -324,11 +324,11 @@ spending$Date <- format(as.Date(spending$Date, "%m/%d/%Y"), "%m/%d/%Y")
 for(i in 1:NROW(spending)){
   if(spending$Long_Date[i]!=""){
     spending$New_Date[i] <- spending$Long_Date[i]
-    } else if(spending$Short_Date[i]!=""){
-      spending$New_Date[i] <- spending$Short_Date[i]
-      } else {
-        spending$New_Date[i] <- spending$Date[i]
-      }
+  } else if(spending$Short_Date[i]!=""){
+    spending$New_Date[i] <- spending$Short_Date[i]
+  } else {
+    spending$New_Date[i] <- spending$Date[i]
+  }
 }
 
 # formatting New_Date
@@ -371,7 +371,7 @@ for(i in 1:NROW(spending)){
 # Create column Weekday
 spending$Weekday <- weekdays(spending$New_Date)
 spending$Weekday <- factor(spending$Weekday, 
-                                      levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+                           levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
 #Create column Month
 
@@ -382,12 +382,13 @@ spending$Month <- factor(spending$Month, levels = c( "June", "July","August","Se
 
 # Remove rows in current month
 spending <- spending%>%
-#  filter(New_Date < Latest) %>%
+  #  filter(New_Date < Latest) %>%
   filter(New_Date >= Earliest)
 
 # drop unnecessary columns
 spending <- spending %>%
-  select(Date=New_Date, Amount, Description, Purchase, Category, Type, City, State, Payment=Payment_Method, Weekday, Month)
+  select(Date=New_Date, Amount, Description, Purchase, Category, Type, City, State, Payment=Payment_Method, Weekday, Month) %>%
+  setorder(-Date)
 
 # Check for nulls after running the script once
 # nulls <- filter(spending, is.na(Type))
@@ -441,13 +442,13 @@ Daily_Spending <- spending %>%
 # spending. Since other spending types have higher frequencies, they shouldnt have the same issues.
 
 Provisional_Spending <- spending %>%
-#  filter(Type=="AD HOC PURCHASES")%>%
+  #  filter(Type=="AD HOC PURCHASES")%>%
   group_by(Month, Category)%>%
   summarise(Total = sum(Amount))%>%
   spread(Month, Total, fill=0) %>%
   filter(Category %in% c("CLOTHES SHOES", "TRAVEL", "ELECTRONICS MOVIES BOOKS", "GIFTS HOLIDAYS", 
                          "HOUSEHOLD ITEMS", "DONATIONS", "ONLINE PURCHASES"))
-  
+
 ####### Total Net Spending
 
 Net_Spending_Savings <- spending %>%
@@ -469,6 +470,9 @@ Total_Spending <- spending %>%
 Total_Income <- Net_Spending_Savings[1,]
 
 rm(Net_Spending_Savings)
+
+# write.csv(spending, file = "Spending_Data.csv")
+# save(spending, file = "spending_data.rda")
 
 ###############################################################################################################################
 
@@ -508,7 +512,7 @@ min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
 max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
 
 footnote <- paste0("This report includes transactions occurring from ", min_date, " through ", max_date, ". The month of ", latest_month, 
-                  " is not complete. Averages only include complete months.")
+                   " is not complete. Averages only include complete months.")
 
 writeData(wb,"Month To Month", footnote, startCol = 1, startRow = 1)
 
