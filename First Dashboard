@@ -4,18 +4,18 @@ library(dplyr)
 library(DT)
 
 ############################################### HEADER ##################################################
-header <- dashboardHeader()
+header <- dashboardHeader(title = "Spending")
 
 ############################################### SIDEBAR ##################################################
 sidebar <- dashboardSidebar(
   sidebarMenu(
     # Create two `menuItem()`s, "Dashboard" and "Inputs"
     menuItem(
-      text = "Spending Details",
+      text = "Details",
       tabName = "spending_table"
     ),
     menuItem(
-      text = "Spending Summary",
+      text = "Summary",
       tabName = "spending_graph"
     )
   )
@@ -58,8 +58,14 @@ server <- function(input, output) {
     pageLength = 50,
     dom = 'ltipr', #lftipr
     autoWidth = TRUE,
+    rowCallback = JS(
+      "function(row, data) {",
+      "var num = '$' + data[1].toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');",
+      "$('td:eq(1)', row).html(num);",
+      "}"),
+    
     columnDefs = list(
-      list(                                  # If cells are longer than 20 char, replace remaining chars with ...
+      list(                                  # abbreviate character strings that are wider than 20 characters
       targets = 2:4,
       render = JS(
         "function(data, type, row, meta) {",
@@ -69,6 +75,7 @@ server <- function(input, output) {
       list(width = '900px', targets = 2:4),    # set column lengths
       list(className = 'dt-center', targets = 5:9)    # center columns
     )
+    
     ), callback = JS('table.page(3).draw(false);')
     )
   output$mytable1 <- DT::renderDataTable({
