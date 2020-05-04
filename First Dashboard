@@ -11,11 +11,11 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     # Create two `menuItem()`s, "Dashboard" and "Inputs"
     menuItem(
-      text = "Raw Data",
+      text = "Spending Details",
       tabName = "spending_table"
     ),
     menuItem(
-      text = "Summary Table",
+      text = "Spending Summary",
       tabName = "spending_graph"
     )
   )
@@ -58,11 +58,11 @@ server <- function(input, output) {
     pageLength = 50,
     dom = 'ltipr', #lftipr
     columnDefs = list(list(
-      targets = 0:9, #names(#[sapply(#, is.character)]),
+      targets = 2:4, #names(#[sapply(#, is.character)]),
       render = JS(
         "function(data, type, row, meta) {",
-        "return type === 'display' && data.length > 15 ?",
-        "'<span title=\"' + data + '\">' + data.substr(0, 15) + '...</span>' : data;",
+        "return type === 'display' && data.length > 20 ?",
+        "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
         "}")
     ))), callback = JS('table.page(3).draw(false);')
     )
