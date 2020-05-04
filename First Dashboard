@@ -59,19 +59,19 @@ server <- function(input, output) {
     dom = 'ltipr', #lftipr
     autoWidth = TRUE,
     columnDefs = list(
-      list(
+      list(                                  # If cells are longer than 20 char, replace remaining chars with ...
       targets = 2:4,
       render = JS(
         "function(data, type, row, meta) {",
         "return type === 'display' && data.length > 20 ?",
         "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
         "}")),
-      list(width = '900px', targets = 2:4)
+      list(width = '900px', targets = 2:4)    # set column lengths
     )
     ), callback = JS('table.page(3).draw(false);')
     )
   output$mytable1 <- DT::renderDataTable({
-    DT::datatable(spending[, names(spending) != "Description"],                            # w check boxes: [, input$show_vars, drop = FALSE]
+    DT::datatable(spending[, names(spending) != "Description"],              # w check boxes: [, input$show_vars, drop = FALSE]
                   selection = 'single', 
                   rownames = F, 
                   caption = description, 
