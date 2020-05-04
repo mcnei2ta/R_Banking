@@ -57,14 +57,18 @@ server <- function(input, output) {
   options(DT.options = list(
     pageLength = 50,
     dom = 'ltipr', #lftipr
-    columnDefs = list(list(
-      targets = 2:4, #names(#[sapply(#, is.character)]),
+    autoWidth = TRUE,
+    columnDefs = list(
+      list(
+      targets = 2:4,
       render = JS(
         "function(data, type, row, meta) {",
         "return type === 'display' && data.length > 20 ?",
         "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
-        "}")
-    ))), callback = JS('table.page(3).draw(false);')
+        "}")),
+      list(width = '900px', targets = 2:4)
+    )
+    ), callback = JS('table.page(3).draw(false);')
     )
   output$mytable1 <- DT::renderDataTable({
     DT::datatable(spending[, names(spending) != "Description"],                            # w check boxes: [, input$show_vars, drop = FALSE]
