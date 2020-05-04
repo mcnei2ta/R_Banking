@@ -26,7 +26,7 @@ body <- dashboardBody(
   tabItems(
     # Add two tab items, one with tabName "dashboard" and one with tabName "inputs"
     tabItem(tabName = "spending_table",
-              fluidRow(
+              fluidPage(
                 # column(
                 #   width = 1,
                 #   checkboxGroupInput("show_vars","Show Columns:", names(spending), selected = names(spending))
@@ -58,7 +58,7 @@ server <- function(input, output) {
     pageLength = 50,
     dom = 'ltipr', #lftipr
     columnDefs = list(list(
-      targets = 0:10, #names(#[sapply(#, is.character)]),
+      targets = 0:9, #names(#[sapply(#, is.character)]),
       render = JS(
         "function(data, type, row, meta) {",
         "return type === 'display' && data.length > 15 ?",
@@ -67,7 +67,7 @@ server <- function(input, output) {
     ))), callback = JS('table.page(3).draw(false);')
     )
   output$mytable1 <- DT::renderDataTable({
-    DT::datatable(spending,                            # w check boxes: [, input$show_vars, drop = FALSE]
+    DT::datatable(spending[, names(spending) != "Description"],                            # w check boxes: [, input$show_vars, drop = FALSE]
                   selection = 'single', 
                   rownames = F, 
                   caption = description, 
