@@ -388,7 +388,7 @@ spending <- spending%>%
 
 # drop unnecessary columns
 spending <- spending %>%
-  select(Date=New_Date, Amount, Description, Purchase, Category, Type, City, State, Payment=Payment_Method, Weekday, Month) %>%
+  select(Date=New_Date, Amount, Description, Purchase, Category, Type, Weekday, Month, City, State, Payment=Payment_Method) %>%
   setorder(-Date)
 
 # Check for nulls after running the script once
