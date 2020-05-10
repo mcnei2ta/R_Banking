@@ -26,11 +26,11 @@ body <- dashboardBody(
   tabItems(
     # Add two tab items, one with tabName "dashboard" and one with tabName "inputs"
     tabItem(tabName = "spending_table",
-              fluidPage(
-                # column(
-                #   width = 1,
-                #   checkboxGroupInput("show_vars","Show Columns:", names(spending), selected = names(spending))
-                # ),
+            fluidPage(
+              # column(
+              #   width = 1,
+              #   checkboxGroupInput("show_vars","Show Columns:", names(spending), selected = names(spending))
+              # ),
               column(
                 width = 12,
                 box(
@@ -40,7 +40,7 @@ body <- dashboardBody(
                 ))
             )),
     tabItem(tabName = "spending_graph")
- )
+  )
 )
 
 ############################################### UI / SERVER ##################################################
@@ -60,24 +60,24 @@ server <- function(input, output) {
     autoWidth = TRUE,
     rowCallback = JS(
       "function(row, data) {",
-      "var num = '$' + data[1].toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');",
+      "var num = '$' + data[1].toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',').replace(/-(.*)/, '($1)');",
       "$('td:eq(1)', row).html(num);",
       "}"),
     
     columnDefs = list(
       list(                                  # abbreviate character strings that are wider than 20 characters
-      targets = 2:4,
-      render = JS(
-        "function(data, type, row, meta) {",
-        "return type === 'display' && data.length > 20 ?",
-        "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
-        "}")),
+        targets = 2:4,
+        render = JS(
+          "function(data, type, row, meta) {",
+          "return type === 'display' && data.length > 20 ?",
+          "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
+          "}")),
       list(width = '900px', targets = 2:4),    # set column lengths
       list(className = 'dt-center', targets = 5:9)    # center columns
     )
     
-    ), callback = JS('table.page(3).draw(false);')
-    )
+  ), callback = JS('table.page(3).draw(false);')
+  )
   output$mytable1 <- DT::renderDataTable({
     DT::datatable(spending[, names(spending) != "Description"],              # w check boxes: [, input$show_vars, drop = FALSE]
                   selection = 'single', 
