@@ -16,7 +16,7 @@ sidebar <- dashboardSidebar(
     ),
     menuItem(
       text = "Summary",
-      tabName = "spending_graph"
+      tabName = "spending_summary"
     )
   )
 )
@@ -36,10 +36,10 @@ body <- dashboardBody(
 #                box(
 #                  width = NULL,
                   title = "Credit and Debit Transactions",
-                  DT::dataTableOutput("mytable1")
+                  DT::dataTableOutput("raw_spending")
                 )#)
             )),
-    tabItem(tabName = "spending_graph")
+    tabItem(tabName = "spending_summary")
   )
 )
 
@@ -78,12 +78,13 @@ server <- function(input, output) {
     
   ), callback = JS('table.page(3).draw(false);')
   )
-  output$mytable1 <- DT::renderDataTable({
+  output$raw_spending <- DT::renderDataTable({
     DT::datatable(spending[, names(spending) != "Description"],              # w check boxes: [, input$show_vars, drop = FALSE]
                   selection = 'single', 
                   rownames = F, 
                   caption = description, 
                   filter = 'top')
+    
   })
 }
 
