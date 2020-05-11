@@ -39,7 +39,13 @@ body <- dashboardBody(
                   DT::dataTableOutput("raw_spending")
                 )#)
             )),
-    tabItem(tabName = "spending_summary")
+    tabItem(tabName = "spending_summary",
+            fluidPage(
+              column(
+                width = 12,
+                title = "Spending Summary Table",
+                tableOutput("spending_pivot")
+            )))
   )
 )
 
@@ -84,7 +90,12 @@ server <- function(input, output) {
                   rownames = F, 
                   caption = description, 
                   filter = 'top')
-    
+  })
+  output$spending_pivot <- renderTable({
+    spending[, names(spending) != "Description"] %>%
+      group_by(Month, Type) %>%
+      summarise(Total=sum(Amount)) %>%
+      spread(Month, Total, fill = 0)
   })
 }
 
