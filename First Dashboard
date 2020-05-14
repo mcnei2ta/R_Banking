@@ -1,12 +1,23 @@
+############################ GLOAL
+
 library(shiny)
 library(shinydashboard)
 library(dplyr)
 library(DT)
 
-############################## HEADER ##################################
+#spending_data <- load("C:/Users/592798/Documents/Monthly Spending Reports/04252020_Updated/spending_data.rda")
+min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
+max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
+description <- paste0("This table includes all debit and credit transactions occurring from ", min_date, " through ", max_date, ".")
+
+
+
+############################################################ UI 
+
+####### HEADER
 header <- dashboardHeader(title = "Spending")
 
-############################## SIDEBAR #################################
+####### SIDEBAR
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem( text = "Details", tabName = "spending_table"),
@@ -14,7 +25,7 @@ sidebar <- dashboardSidebar(
   )
 )
 
-#################################### BODY ##############################
+####### BODY
 body <- dashboardBody(
   tabItems(
     tabItem(tabName = "spending_table", 
@@ -31,58 +42,42 @@ body <- dashboardBody(
     )
   )
 
-############################ UI FINAL
+######### UI FINAL
 
 # Create the UI using the header, sidebar, and body
 ui <- dashboardPage(header, sidebar, body, title = "Spending")
-
-#spending_data <- load("C:/Users/592798/Documents/Monthly Spending Reports/04252020_Updated/spending_data.rda")
-min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
-max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
-description <- paste0("This table includes all debit and credit transactions occurring from ", min_date, " through ", max_date, ".")
 
 
 
 ########################################################## SERVER
 server <- function(input, output) {
   # data
-  options(DT.options = list(
-    pageLength = 50,
-    dom = 'ltipr', #lftipr
-    autoWidth = TRUE,
-    rowCallback = JS(
-      "function(row, data) {",
-      "var num = data[1].toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',').replace(/-(.*)/, '($1)');", #.toFixed(2)
-      "$('td:eq(1)', row).html(num);",
-      "}"),
+  options(DT.options = list( pageLength = 50, dom = 'ltipr', autoWidth = TRUE, 
+                             # FORMAT AMOUNT
+                             rowCallback = JS(
+            "function(row, data) {",
+            "var num = data[1].toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',').replace(/-(.*)/, '($1)');",
+            "$('td:eq(1)', row).html(num);",
+            "}"),
     
-    columnDefs = list(
-      list(                                  # abbreviate character strings that are wider than 20 characters
-        targets = 2:4,
-        render = JS(
-          "function(data, type, row, meta) {",
-          "return type === 'display' && data.length > 20 ?",
-          "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
-          "}")),
-      list(width = '900px', targets = 2:4),    # set column lengths
-      list(className = 'dt-center', targets = 5:9)    # center columns
-    )
+          columnDefs = list( list( targets = 2:4, render = JS(      # abbreviate character strings that are wider than 20 characters
+                "function(data, type, row, meta) {",
+                "return type === 'display' && data.length > 20 ?",
+                "'<span title=\"' + data + '\">' + data.substr(0, 20) + '...</span>' : data;",
+                "}")),
+            list(width = '900px', targets = 2:4),    # set column lengths
+            list(className = 'dt-center', targets = 5:9)    # center columns
+          )
     
   ), callback = JS('table.page(3).draw(false);')
   )
-  output$raw_spending <- DT::renderDataTable({
-    DT::datatable(spending[, names(spending) != "Description"],              # w check boxes: [, input$show_vars, drop = FALSE]
-                  selection = 'single', 
-                  rownames = F, 
-                  caption = description, 
-                  filter = 'top')
-  })
-  output$spending_pivot <- renderTable({
-    spending %>%
-      group_by(input$spending_columns, Type) %>% #input$spending_columns
-      summarise(Total=sum(Amount)) %>%
-      spread(input$spending_columns, Total, fill = 0) #input$spending_columns
-  })
+  output$raw_spending <- DT::renderDataTable({DT::datatable(spending[, names(spending) != "Description"], selection = 'single',
+                                                            rownames = F, caption = description, filter = 'top')                })
+  
+  output$spending_pivot <- renderTable({ spending %>% 
+                                          group_by(input$spending_columns, Type) %>% 
+                                          summarise(Total=sum(Amount)) %>%
+                                          spread(input$spending_columns, Total, fill = 0)    })
 }
 
 shinyApp(ui, server)
