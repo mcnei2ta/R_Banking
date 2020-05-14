@@ -3,53 +3,36 @@ library(shinydashboard)
 library(dplyr)
 library(DT)
 
-############################################### HEADER ##################################################
+############################## HEADER ##################################
 header <- dashboardHeader(title = "Spending")
 
-############################################### SIDEBAR ##################################################
+############################## SIDEBAR #################################
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    # Create two `menuItem()`s, "Dashboard" and "Inputs"
-    menuItem(
-      text = "Details",
-      tabName = "spending_table"
-    ),
-    menuItem(
-      text = "Summary",
-      tabName = "spending_summary"
-    )
+    menuItem( text = "Details", tabName = "spending_table"),
+    menuItem( text = "Summary", tabName = "spending_summary")
   )
 )
 
-############################################### BODY ##################################################
+#################################### BODY ##############################
 body <- dashboardBody(
   tabItems(
-    # Add two tab items, one with tabName "dashboard" and one with tabName "inputs"
-    tabItem(tabName = "spending_table",
+    tabItem(tabName = "spending_table", 
             fluidPage(
-              # column(
-              #   width = 1,
-              #   checkboxGroupInput("show_vars","Show Columns:", names(spending), selected = names(spending))
-              # ),
-              column(
-                width = 12,
-#                box(
-#                  width = NULL,
-                  title = "Credit and Debit Transactions",
-                  DT::dataTableOutput("raw_spending")
-                )#)
-            )),
+                      column(width = 12, title = "Credit and Debit Transactions", DT::dataTableOutput("raw_spending"))
+                      )
+            ),
     tabItem(tabName = "spending_summary",
             fluidPage(
-              column(
-                width = 12,
-                title = "Spending Summary Table",
-                tableOutput("spending_pivot")
-            )))
+                      column(width = 2, selectInput("spending_columns","Select Columns:", names(spending))),
+                      column(width = 10, box(width = NULL, title = "Spending Summary Table", tableOutput("spending_pivot")))
+                      )
+            )
+    )
   )
-)
 
-############################################### UI / SERVER ##################################################
+############################ UI FINAL
+
 # Create the UI using the header, sidebar, and body
 ui <- dashboardPage(header, sidebar, body, title = "Spending")
 
@@ -58,6 +41,9 @@ min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
 max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
 description <- paste0("This table includes all debit and credit transactions occurring from ", min_date, " through ", max_date, ".")
 
+
+
+########################################################## SERVER
 server <- function(input, output) {
   # data
   options(DT.options = list(
@@ -92,10 +78,10 @@ server <- function(input, output) {
                   filter = 'top')
   })
   output$spending_pivot <- renderTable({
-    spending[, names(spending) != "Description"] %>%
-      group_by(Month, Type) %>%
+    spending %>%
+      group_by(input$spending_columns, Type) %>% #input$spending_columns
       summarise(Total=sum(Amount)) %>%
-      spread(Month, Total, fill = 0)
+      spread(input$spending_columns, Total, fill = 0) #input$spending_columns
   })
 }
 
