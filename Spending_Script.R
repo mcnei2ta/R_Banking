@@ -19,7 +19,7 @@ library(scales)
 ################################################ UPDATES
 
 # set working directory
-setwd("C:/Users/592798/Documents/Monthly Spending Reports/04252020_Updated")
+setwd("/Users/thomasmcneill/Documents/data/spendingdocs")
 
 
 # create a list of the names of all files in the working directory, call the list "files"
@@ -95,9 +95,11 @@ purchases = list(
                        'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR','WALGREENS','SHEETZ','REAMS MARKET',
                        "AKJK CROWN",'BI-LO GROCERY','SPEEDWAY',"SPEEDY'S MART",'SUNNYS MARKET','CHEVRON FOOD MART','PUBLIX SUPER MAR',
                        'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL','TOKYO MARKET','TARGET',
-                       "MARATHON PETRO","QT 770 CONYERS","3 HENS"
+                       "MARATHON PETRO","QT 770 CONYERS","3 HENS","MECKLENBURG ABC","STRAWBERRY ST MARKET",
+                       "MILE HIGH LIQUORS","CST4076 DENVER","TOM LEONARD'S FARMERS MA","ALDI","FRESH MARKET"
   ),
-  household_items = c("LOWE'S",'BEDBATH&BEYOND','IKEA','NNT COST PLUS', 'GOODWILL','BED BATH & BEYOND','STAPLES',"LOWES"
+  household_items = c("LOWE'S",'BEDBATH&BEYOND','IKEA','NNT COST PLUS', 'GOODWILL','BED BATH & BEYOND','STAPLES',"LOWES",
+                      "U-HAUL","ADDRESSCHANGEFORMS"
   ),
   bars = c('CRYSTAL CITY SPORT', 'EL REY', 'FOX BROS BAR','LUCKY BAR',"ORMSBY'S",'SINE IRISH PUB','SOUTHERN RAILWAY T','ROCK AND ROLL',
            'THE QUEEN VIC','THE FAINTING GOAT','ZEN BISTRO','BAJA BEAN','BARCODE','BASEMENT BAR','DON`T LOOK BACK','Flash','FLORA',
@@ -110,7 +112,8 @@ purchases = list(
            ' SAUF HAUS','MOES','BULLPEN','SAUF HAUS','KITH AND KIN','H STREET COUNTRY C','Bluejacket/The Yar', 'REBELLION ON',
            "THE LIBERTY T", "U STREET MUSIC HAL","STICKY RICE","POOR BOYS","Roofers Union",'801 Restaurant and Bar','CARY STREET CAFE',
            "GARDEN GROVE BREWING","BARRIO","BUSHWALLER","IDIOM BREWING CO","THE HOP AND VINE","STEINHARDT BREWING CO","THE WINE KITCHEN",
-           "White Rabbit Gastropub","CAFE NOLA"
+           "White Rabbit Gastropub","CAFE NOLA","CANON & DRAW BREWING","BLUE MOON BREWING","GREAT DIVIDE BREW","BLACK SHIRT BREWING",
+           "CANOPY DENVER"
   ),
   eating_out = c("BEAUVINE BURGER", "DESPERADOS BURGER", "BASIC BURGER", "BURGER KING", "BURGER BACH",'SAVI PHARR', 'STARBUCKS',
                  'AUNTIE ANNES', 'BREZZA CUCINA','BUCKHEAD IRISH PUB','CHIPOTLE','KOGIYA RESTAURANT',
@@ -134,36 +137,42 @@ purchases = list(
                  "SMOOTHIE","ROAEATSTR",'FIRE & HOPS','IHOP','OYAMEL',"ROSTOV'S COFFEE & TEA",'KPHTH LLC','FOODA INC','GREEK ON CARY',
                  'POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG",
                  "BACCHUS","NATES BAGELS","FU JIAN CHINESE","JAVA SURF CAFE","GRUBHUB.COM","ASSANTES PIZZA","CAFE ANGLAIS",
-                 "BEANS & BAGELS LEWISTOWN","DD/BR","ROASTOLOGY CAFE"
-                 ),
-#  lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
+                 "BEANS & BAGELS LEWISTOWN","DD/BR","ROASTOLOGY CAFE","Four Brothers Grill","CRAZY THAI","LITTLE SPOON","PAPA JOHNS",
+                 "BELMONT PIZZERIA","SHYNDIGZ","AC DBC FS PIZZA TENNYSON","El Jefe Denver","FRESCA Denver","STYRIA BAKERY II",
+                 "TNT COUNTRY KITCHEN","SASSAFRAS","THE BLUE COW EATERY","BOMBOLINI PASTA","COFFEE","QUICK SNACK","ANKARA",
+                 "IZZY S KITCHEN","TARRANT S","TEXAS DE BRAZIL","GARNETT`S","OK8","BOKA TAKO","AMK CAP1","TOAST"
+  ),
+  #  lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
   clothes_shoes = c('GAP US','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
-                    'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW"
+                    'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW","OLD NAVY"
   ),
-  electronics_movies_books = c('BEST BUY','WAL-MART','NINTENDO','GOOGLE','BARNESNOBLE','HBOOKSELLER','M JUDSON BOOKSELLE',"INSTYLE FIX"
-  ),
-#  insurance = c('STATE FARM INSURAN','STATE FARM INSURA'),
+  electronics_movies_books = c('BEST BUY','WAL-MART','NINTENDO','GOOGLE','BARNESNOBLE','HBOOKSELLER','M JUDSON BOOKSELLE',"INSTYLE FIX",
+                               "Kindle","APPLE STORE"),
+  #  insurance = c('STATE FARM INSURAN','STATE FARM INSURA'),
   fun_activities = c('AGECROFT HALL','DEGGELLER ATTRACTI','STATE FAI','MOVIELAND','REGAL POTOMAC YARD','RUSSELL FOODS',
                      'STONE MOUNTAIN','MOONRISE FESTI','STOCKYARD SPORTS','WM SUPERcenter','DC BRUNCH','REGAL CINEMAS',
                      'POE FOUNDATION','WINTERGREEN','DAYS INN','RESIDENT ADVISOR T',"PARTY CITY",'TICKETFLY','TRIGGER AGENCY',
                      'STUBHUB','FCPA OAK MAR GC','INTL SPY MUSEUM','TICKETMASTER','BALLSTON COMMON ST','CARMACK',"VIRGINIA MUSEUM BEST", 
-                     "ARTECHOUSE","LINCOLN THEATRE",'ALOHA SAFARI ZOO',"FIRST LANDING ST PARK","NATIONAL MUSEUM OF CIVIL FREDERICK"),
+                     "ARTECHOUSE","LINCOLN THEATRE",'ALOHA SAFARI ZOO',"FIRST LANDING ST PARK","NATIONAL MUSEUM OF CIVIL FREDERICK",
+                     "BOGEYS SPORTS PARK"),
   gifts_holidays = c('PREPAID','MOOSE APPLE CHRIST','Amzn.com/bill','ACACIA MID-TOWN','GAMESTOP #4101 1100 S HAY 12-23-18',
                      'VZW WEBPAY VZ WIRELESS','BRANDYLANE PUB',"L2ATOM51",'RICHARD VARIETY ST','GUAVA FAMILY INC',
-                     'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S','TARGET.COM'
+                     'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S','TARGET.COM',"MICHAELS STORES",
+                     "RAVENCHASE", "MONGREL"
   ),
   #  groceries = c('HARRIS TEETER', 'KROGER','FOOD LION'),
-  media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime','APPLE.COM/BILL'),
+  media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime','APPLE.COM/BILL',"SPOTIFY"),
   phone = c('PAYMENTS VERIZON WIRELESS','VERIZON WRLS'),
   internet = c('VERIZON .COM','VERI ZON FL'),
-  rent_utilities = c('PROPERTY PAYMENT','STATE FARM INSURAN','STATE FARM INSURA'),
+  rent_utilities = c('PROPERTY PAYMENT','STATE FARM INSURAN','STATE FARM INSURA',"AMPLE STORAGE",
+                     "PAYMENT VCU WEB PAY 508978","CHECK"),
   salary_and_reimbursement = c('DIRECT DEP BOOZ ALLEN HAMIL','MOBILE DEPOSIT',"FUNDS XFER BRENTALIE", "VASTTAXRFD VA DEPT TAXATION", 
                                "SBTPG LLC TAX PRODUCTS",'TAX REF IRS',"TRUIST CARES BONUS","AUTO PMT FROM ACCT"),
-  student_loans = c('STUDNTLOAN'),
+  student_loans_grad_school = c('STUDNTLOAN',"COLLEGE TRANSCRIPT","VCUGRAD"),
   transfer_from_savings = c('FROM SAVINGS'),
   transfer_to_savings = c('TO SAVINGS'),
   metro = c('ERM','METRO'),
-  trains_buses = c('AMTRAK','GREYHOUND','MEGABUS'),
+  trains_buses_car_repair = c('AMTRAK','GREYHOUND','MEGABUS',"RVA COMPLETE AUTOMOTIVE","AUTO REPAIR"),
   travel = c('SPIRIT AIRL','DELTA AIR','MARC GARAGE & BWI','PEN AND PROSE - BWI','UNITED','EXPEDIA','QUALITY SUITES',
              'DULLES WASHINGTON','HAMPTON INN','FOREIGN TRANSACTION FEE','CONDOR'),
   rideshares = c('UBER','LYFT','BIRD APP'),
@@ -173,7 +182,8 @@ purchases = list(
                     'CMSVEND','EAST POTOMAC GOLF','PENTAGON center TR','BLCKT VE','USCONNECT ACCNT VE','USPS.COM','HUMAN RIGHTS',
                     'GREAT CLIPS', 'COINMACH RIVER','PARKMOBILE','RIVER HOUSE VALET','VALET PARKIN',"RETURNED ITEM FEE",
                     'PENSKE TRK', 'PAY PAL *PAULINEOGEM', 'FANTASTIC THRIF','TEN THOUSAND', 'VNO PENTAGON PLAZA','COINMACH',
-                    "L'ENFANT WEST","MYEYEDR","ARAMARK REFRESHMENTS","FMB LAUNDRY","INTUIT",'EXXONMOBIL',"RVA COMPLETE AUTOMOTIVE"
+                    "L'ENFANT WEST","MYEYEDR","ARAMARK REFRESHMENTS","FMB LAUNDRY","INTUIT",'EXXONMOBIL',
+                    "IMMORTAL BELOVED","ASHLEY-RIVERHOUSE","TELADOC"
   ),
   online_purchases = c('AMZN DIGITAL','Amazon.com*MB7H24C','AMZN Mktp','JIBJAB ECARDS',"AMAZON.COM","AMZN MKTP",
                        "DATACAMP INC","AMZN Digital")
@@ -225,10 +235,10 @@ spending <- spending %>%
 ### create new column Type
 types = list(
   day_to_day = c('eating_out','stores_groceries','rideshares','bars', #'lunch', #groceries',
-                 'metro','extra','trains_buses','laundry','snack','withdrawal','haircut','books','shipping_online_purchase',
+                 'metro','extra','trains_buses_car_repair','laundry','snack','withdrawal','haircut','books','shipping_online_purchase',
                  'parking','fun_activities','miscellaneous'),
   monthly_bills = c('media','phone',#'insurance','gym',
-                    'student_loans','rent_utilities','internet'),
+                    'student_loans_grad_school','rent_utilities','internet'),
   ad_hoc_purchases = c('clothes_shoes','travel','electronics_movies_books',
                        'gifts_holidays','household_items','donations','online_purchases'),
   income = c('salary_and_reimbursement'),
@@ -395,7 +405,7 @@ spending$Month <- factor(spending$Month, levels = c("January","February", "March
 
 # Remove rows in current month
 spending <- spending%>%
-#  filter(New_Date < Latest) %>%
+  #  filter(New_Date < Latest) %>%
   filter(New_Date >= Earliest)
 
 # drop unnecessary columns
@@ -435,11 +445,11 @@ spending$Category <- factor(spending$Category, levels = Ordered_Spending$Categor
 
 # We need to filter to the categories in Type=MONTHLY BILLS because if we filter on type before the spread, we lose months with no monthly bills yet
 Monthly_Bills <- spending %>%
-#  filter(Type=="MONTHLY BILLS")%>%
+  #  filter(Type=="MONTHLY BILLS")%>%
   group_by(Month, Category)%>%
   summarise(Total = sum(Amount))%>%
   spread(Month, Total, fill=0) %>%
-  filter(Category %in% c("RENT UTILITIES", "PHONE",  "STUDENT LOANS", "MEDIA", "INTERNET"))
+  filter(Category %in% c("RENT UTILITIES", "PHONE",  "STUDENT LOANS GRAD SCHOOL", "MEDIA", "INTERNET"))
 
 #### Create table for Day-To-Day purchases
 
@@ -521,7 +531,7 @@ wb <- createWorkbook(creator = "Thomas"
                      , title = "Monthly Spending Report"
                      , subject = "June 2019 to Present Spending Breakdown")
 
-addWorksheet(wb, "Month To Month")
+addWorksheet(wb, "Spending Summary")
 
 # FOOTNOTES
 min_date <- format(as.Date(min(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
@@ -530,72 +540,72 @@ max_date <- format(as.Date(max(spending$Date), "%Y-%m-%d"), "%m/%d/%Y")
 footnote <- paste0("This report includes transactions occurring from ", min_date, " through ", max_date, ". The month of ", latest_month, 
                    " is not complete. Averages only include complete months.")
 
-writeData(wb,"Month To Month", footnote, startCol = 1, startRow = 1)
+writeData(wb,"Spending Summary", footnote, startCol = 1, startRow = 1)
 
-# Table: Month To Month AND INCOME BY TYPE
-writeData(wb,"Month To Month", "ALL SPENDING AND INCOME (AFTER TAX)", startCol = 5, startRow = 2)
+# Table: Spending Summary AND INCOME BY TYPE
+writeData(wb,"Spending Summary", "ALL SPENDING AND INCOME (AFTER TAX)", startCol = 5, startRow = 2)
 
-writeData(wb,"Month To Month", Total_Income, startCol = 5, startRow = 3, borders = "all")
-writeData(wb,"Month To Month", "TOTAL SPENDING", startCol = 5, startRow = 5, borders = "all")
-writeData(wb,"Month To Month", Total_Spending, startCol = 6, startRow = 5, colNames = FALSE, borders = "all")
-writeData(wb,"Month To Month", Net_Spending[2:5,], startCol = 5, startRow = 6, colNames = FALSE, borders = "all")
-conditionalFormatting(wb, "Month To Month", cols=6:(5+length(Total_Spending)), rows=4:9, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+writeData(wb,"Spending Summary", Total_Income, startCol = 5, startRow = 3, borders = "all")
+writeData(wb,"Spending Summary", "TOTAL SPENDING", startCol = 5, startRow = 5, borders = "all")
+writeData(wb,"Spending Summary", Total_Spending, startCol = 6, startRow = 5, colNames = FALSE, borders = "all")
+writeData(wb,"Spending Summary", Net_Spending[2:5,], startCol = 5, startRow = 6, colNames = FALSE, borders = "all")
+conditionalFormatting(wb, "Spending Summary", cols=6:(5+length(Total_Spending)), rows=4:9, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
 
 # SAVINGS TRANSFERS
-writeData(wb,"Month To Month", "SAVINGS DEBITS AND CREDITS", startCol = 5, startRow = 11, borders = "all")
-addStyle(wb, "Month To Month", Title, rows=11, cols=5)
-writeData(wb,"Month To Month", Savings_Transfers, startCol = 5, startRow = 12, borders = "all")
-addStyle(wb, "Month To Month", Headers, cols=c(5:(5+length(Total_Spending))), rows=12)
-addStyle(wb, "Month To Month", Numbers, rows=13, cols=6:(5+length(Total_Spending)))
-conditionalFormatting(wb, "Month To Month", cols=6:(5+length(Total_Spending)), rows=13, style = c("#63BE7B", "#FFEB84", "#F8696B"), type = "colourScale")
+writeData(wb,"Spending Summary", "SAVINGS DEBITS AND CREDITS", startCol = 5, startRow = 11, borders = "all")
+addStyle(wb, "Spending Summary", Title, rows=11, cols=5)
+writeData(wb,"Spending Summary", Savings_Transfers, startCol = 5, startRow = 12, borders = "all")
+addStyle(wb, "Spending Summary", Headers, cols=c(5:(5+length(Total_Spending))), rows=12)
+addStyle(wb, "Spending Summary", Numbers, rows=13, cols=6:(5+length(Total_Spending)))
+conditionalFormatting(wb, "Spending Summary", cols=6:(5+length(Total_Spending)), rows=13, style = c("#63BE7B", "#FFEB84", "#F8696B"), type = "colourScale")
 
 # Table: AVERAGE SPENDING AND INCOME BY CATEGORY
-writeData(wb,"Month To Month", "AVERAGE MONTHLY SPENDING AND INCOME", startCol = 2, startRow = 2)
-writeData(wb,"Month To Month", Ordered_Spending, startCol = 2, startRow = 3, borders = "all")
-conditionalFormatting(wb, "Month To Month", cols=3, rows=4:27, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+writeData(wb,"Spending Summary", "AVERAGE MONTHLY SPENDING AND INCOME", startCol = 2, startRow = 2)
+writeData(wb,"Spending Summary", Ordered_Spending, startCol = 2, startRow = 3, borders = "all")
+conditionalFormatting(wb, "Spending Summary", cols=3, rows=4:27, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
 
 # Add Styles
-addStyle(wb, "Month To Month", Title, rows=c(2,2), cols=c(2,5), gridExpand = FALSE, stack = FALSE)
-addStyle(wb, "Month To Month", Headers, cols=c(2:3), rows=c(3), gridExpand = FALSE, stack = FALSE)
-addStyle(wb, "Month To Month", Headers, cols=c(5:(5+length(Total_Spending))), rows=c(3), gridExpand = FALSE, stack = FALSE)
-addStyle(wb, "Month To Month", Numbers, rows=4:9, cols=6:(5+length(Total_Spending)), gridExpand = TRUE, stack = FALSE)
-addStyle(wb, "Month To Month", Numbers, rows=c(4:27), cols=c(3), gridExpand = FALSE, stack = FALSE)
-addStyle(wb, "Month To Month", Total, rows=5, cols=5, gridExpand = FALSE, stack = FALSE)
-addStyle(wb, "Month To Month", Double_Border, rows=5, cols=5:(5+length(Total_Spending)), gridExpand = FALSE, stack = TRUE)
+addStyle(wb, "Spending Summary", Title, rows=c(2,2), cols=c(2,5), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Spending Summary", Headers, cols=c(2:3), rows=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Spending Summary", Headers, cols=c(5:(5+length(Total_Spending))), rows=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Spending Summary", Numbers, rows=4:9, cols=6:(5+length(Total_Spending)), gridExpand = TRUE, stack = FALSE)
+addStyle(wb, "Spending Summary", Numbers, rows=c(4:27), cols=c(3), gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Spending Summary", Total, rows=5, cols=5, gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Spending Summary", Double_Border, rows=5, cols=5:(5+length(Total_Spending)), gridExpand = FALSE, stack = TRUE)
 
 # Table: MONTHLY BILLS
-writeData(wb,"Month To Month", "MONTHLY BILLS", startCol = 5, startRow = 15)
-writeData(wb,"Month To Month", Monthly_Bills, startCol = 5, startRow = 16, borders = "all")
-addStyle(wb, "Month To Month", Title, rows=15, cols=5)
-addStyle(wb, "Month To Month", Headers, rows=16, cols=5:(5+length(Total_Spending)))
-addStyle(wb, "Month To Month", Numbers, rows=17:21, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
-conditionalFormatting(wb, "Month To Month", rows=17:21, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+writeData(wb,"Spending Summary", "MONTHLY BILLS", startCol = 5, startRow = 15)
+writeData(wb,"Spending Summary", Monthly_Bills, startCol = 5, startRow = 16, borders = "all")
+addStyle(wb, "Spending Summary", Title, rows=15, cols=5)
+addStyle(wb, "Spending Summary", Headers, rows=16, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Spending Summary", Numbers, rows=17:21, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Spending Summary", rows=17:21, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
 
 # Table: DAILY SPENDING
-writeData(wb,"Month To Month", "DAY TO DAY SPENDING", startCol = 5, startRow = 23)
-writeData(wb,"Month To Month", Daily_Spending, startCol = 5, startRow = 24, borders = "all")
-addStyle(wb, "Month To Month", Title, rows=23, cols=5)
-addStyle(wb, "Month To Month", Headers, rows=24, cols=5:(5+length(Total_Spending)))
-addStyle(wb, "Month To Month", Numbers, rows=25:32, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
-conditionalFormatting(wb, "Month To Month", rows=25:32, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+writeData(wb,"Spending Summary", "DAY TO DAY SPENDING", startCol = 5, startRow = 23)
+writeData(wb,"Spending Summary", Daily_Spending, startCol = 5, startRow = 24, borders = "all")
+addStyle(wb, "Spending Summary", Title, rows=23, cols=5)
+addStyle(wb, "Spending Summary", Headers, rows=24, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Spending Summary", Numbers, rows=25:32, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Spending Summary", rows=25:32, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
 
 # Table: PROVISIONAL SPENDING
 # Table: DAILY SPENDING
-writeData(wb,"Month To Month", "AD HOC SPENDING", startCol = 5, startRow = 34)
-writeData(wb,"Month To Month", Provisional_Spending, startCol = 5, startRow = 35, borders = "all")
-addStyle(wb, "Month To Month", Title, rows=34, cols=5)
-addStyle(wb, "Month To Month", Headers, rows=35, cols=5:(5+length(Total_Spending)))
-addStyle(wb, "Month To Month", Numbers, rows=36:41, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
-conditionalFormatting(wb, "Month To Month", rows=36:41, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
+writeData(wb,"Spending Summary", "AD HOC SPENDING", startCol = 5, startRow = 34)
+writeData(wb,"Spending Summary", Provisional_Spending, startCol = 5, startRow = 35, borders = "all")
+addStyle(wb, "Spending Summary", Title, rows=34, cols=5)
+addStyle(wb, "Spending Summary", Headers, rows=35, cols=5:(5+length(Total_Spending)))
+addStyle(wb, "Spending Summary", Numbers, rows=36:41, cols=6:(5+length(Total_Spending)), gridExpand = TRUE)
+conditionalFormatting(wb, "Spending Summary", rows=36:41, cols=6:(5+length(Total_Spending)), style = c("#F8696B", "#FFEB84"), type = "colourScale")
 
 
 ## Tab column widths
-setColWidths(wb, "Month To Month", cols=2, widths = 31)
-setColWidths(wb, "Month To Month", cols=5, widths = 24)
-setColWidths(wb, "Month To Month", cols=c(3,6:(5+length(Total_Spending))), widths = 12)
+setColWidths(wb, "Spending Summary", cols=2, widths = 31)
+setColWidths(wb, "Spending Summary", cols=5, widths = 24)
+setColWidths(wb, "Spending Summary", cols=c(3,6:(5+length(Total_Spending))), widths = 12)
 
 # Gridlines
-showGridLines(wb, "Month To Month", showGridLines = FALSE)
+showGridLines(wb, "Spending Summary", showGridLines = FALSE)
 
 ### Save the workbook
 #saveWorkbook(wb, "../Monthly Spending.xlsx", overwrite = TRUE)
